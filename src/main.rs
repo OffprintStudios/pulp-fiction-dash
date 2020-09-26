@@ -24,6 +24,7 @@ extern crate voca_rs;
 extern crate jsonwebtoken;
 extern crate maplit;
 extern crate nanoid;
+extern crate easy_hasher;
 extern crate dotenv;
 #[macro_use] extern crate dotenv_codegen;
 
