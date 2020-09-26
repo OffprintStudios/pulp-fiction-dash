@@ -12,6 +12,7 @@ extern crate rocket_contrib;
 extern crate async_std;
 extern crate futures;
 extern crate mongodb;
+extern crate chrono;
 
 /* Webserver */
 extern crate serde;
