@@ -23,6 +23,8 @@ extern crate voca_rs;
 extern crate jsonwebtoken;
 extern crate maplit;
 extern crate nanoid;
+extern crate dotenv;
+#[macro_use] extern crate dotenv_codegen;
 
 mod api;
 mod db;
@@ -55,4 +57,5 @@ async fn t_minus() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", routes![index, file_index])
         .attach(SpaceHelmet::default())
+        .manage(db::init_pulp_db().await)
 }
