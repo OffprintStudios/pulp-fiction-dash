@@ -1,6 +1,7 @@
 use std::process::Command;
 
 fn main() {
+    println!("cargo:rerun-if-changed=client/");
     let output_deps = Command::new("yarn")
         .args(&["--cwd", "./client", "install"])
         .output()
