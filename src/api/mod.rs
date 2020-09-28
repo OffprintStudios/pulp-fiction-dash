@@ -2,6 +2,12 @@
 //! 
 //! Backend routes and functions for the API
 
+/* Submodules */
+pub mod home;
+pub mod admin;
+pub mod contrib;
+pub mod auth;
+
 /* std */
 use std::convert::From;
 
