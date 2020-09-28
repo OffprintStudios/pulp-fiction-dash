@@ -30,7 +30,6 @@ extern crate dotenv;
 
 mod api;
 mod db;
-mod routes;
 mod util;
 
 use std::path::{Path, PathBuf};
