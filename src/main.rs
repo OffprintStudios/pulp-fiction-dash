@@ -27,6 +27,7 @@ extern crate nanoid;
 extern crate easy_hasher;
 extern crate dotenv;
 #[macro_use] extern crate dotenv_codegen;
+extern crate regex;
 
 mod api;
 mod db;

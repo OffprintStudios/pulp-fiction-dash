@@ -10,11 +10,24 @@ use mongodb::Database;
 use mongodb::options::{FindOneAndUpdateOptions, ReturnDocument};
 use mongodb::bson::{doc, Document, from_bson, Bson};
 use chrono::{DateTime, Utc, Duration};
+use argon2::{self, Config, ThreadMode, Variant, Version};
 use easy_hasher::easy_hasher::sha256;
+use regex::Regex;
 
 use user_document::UserDocument;
 
 impl UserDocument {
+    /// Verifies a password.
+    async fn verify_password(&self, password_to_check: &str) {
+        let password_hash = self.password.clone();
+
+        let config: Config = Config {
+            variant: Variant::Argon2id, version: Version::Version13, mem_cost: 4096,
+            time_cost: 3, lanes: 1, thread_mode: ThreadMode::Sequential,
+            ad: &[], hash_length: 32, secret: &[]
+        };
+    }
+
     /// Finds a user by their email. If found, returns the user document.
     /// 
     /// Otherwise, returns `None`.
