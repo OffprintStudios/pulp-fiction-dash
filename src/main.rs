@@ -57,7 +57,9 @@ async fn file_index(path: PathBuf) -> Option<NamedFile> {
 async fn t_minus() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", routes![index, file_index])
-        .mount("/api", routes![api::auth::login::login])
+        .mount("/api", routes![
+            api::auth::login::login
+        ])
         .attach(SpaceHelmet::default())
         .manage(db::init_pulp_db().await)
 }
