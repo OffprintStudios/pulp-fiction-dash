@@ -18,7 +18,7 @@ extern crate chrono;
 extern crate serde;
 extern crate serde_json;
 #[macro_use] extern crate serde_derive;
-extern crate argon2;
+extern crate argonautica;
 extern crate ammonia;
 extern crate voca_rs;
 extern crate jsonwebtoken;

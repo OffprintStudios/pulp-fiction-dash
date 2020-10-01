@@ -10,7 +10,7 @@ use mongodb::Database;
 use mongodb::options::{FindOneAndUpdateOptions, ReturnDocument};
 use mongodb::bson::{doc, from_bson, Bson};
 use chrono::{DateTime, Utc, Duration};
-use argon2::{self, Config, ThreadMode, Variant, Version};
+use argonautica::Verifier;
 use easy_hasher::easy_hasher::sha256;
 
 use user_document::UserDocument;
@@ -18,33 +18,12 @@ use user_document::UserDocument;
 impl UserDocument {
     /// Verifies a password.
     async fn verify_password(&self, password_to_check: &str) -> bool {
-        let password_hash = self.password.clone(); 
-        let password_parts = password_hash.split("$").skip(4);
-        let mut salt_and_hash: Vec<String> = Vec::new();
-        for part in password_parts {
-            salt_and_hash.push(part.to_string());
-        }
-        let config: Config = Config {
-            variant: Variant::Argon2id, version: Version::Version13, mem_cost: 4096,
-            time_cost: 3, lanes: 1, thread_mode: ThreadMode::Sequential,
-            ad: &[], hash_length: 32, secret: &[]
-        };
-
-        println!("Old Salt: {}", salt_and_hash[0]);
-        println!("Old Hash: {}", salt_and_hash[1]);
-
-        let new_hash = match argon2::hash_encoded(password_to_check.as_bytes(), salt_and_hash[0].as_bytes(), &config) {
-            Ok(hash) => hash,
-            Err(_) => unimplemented!("hashing failed!")
-        };
-
-        println!("New Hash: {}", new_hash);
-        println!("Old Hash: {}", password_hash);
-
-        match argon2::verify_encoded(&new_hash, password_hash.as_bytes()) {
+        let password_hash = self.password.clone();
+        let mut verifier = Verifier::default();
+        match verifier.with_hash(password_hash).with_password(password_to_check).verify() {
             Ok(true) => true,
             Ok(false) => false,
-            Err(_) => unimplemented!("verification failed!")
+            Err(e) => unimplemented!("{}", e)
         }
     }
 
