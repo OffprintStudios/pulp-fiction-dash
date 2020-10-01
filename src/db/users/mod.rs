@@ -33,7 +33,6 @@ impl UserDocument {
     pub async fn find_one_by_email(db: Database, potential_email: String) -> Option<UserDocument> {
         let coll = db.collection("users");
         let find_one_doc = doc!{"email": &potential_email, "audit.isDeleted": false};
-        println!("{}", find_one_doc);
         
         match coll.find_one(find_one_doc, None).await {
             Ok(doc) => {
@@ -78,7 +77,7 @@ impl UserDocument {
         }
     }
 
-    pub async fn login(db: Database, email: String, password: String) {
+    pub async fn login(db: Database, email: String, password: String) -> Option<UserDocument> {
         let potential_user = UserDocument::find_one_by_email(db.clone(), email.clone()).await;
         let matched_user = match potential_user {
             Some(user) => user,
@@ -86,8 +85,8 @@ impl UserDocument {
         };
 
         match matched_user.verify_password(&password).await {
-            true => println!("user verified!"),
-            false => println!("user not valid!")
-        };
+            true => Some(matched_user),
+            false => None
+        }
     }
 }
