@@ -1,6 +1,6 @@
 use crate::db::users::{roles::Roles, audit_session::AuditSession};
 
-use chrono::{DateTime, Utc};
+use mongodb::bson::DateTime;
 
 #[derive(Serialize, Deserialize)]
 pub struct UserDocument {
@@ -14,9 +14,9 @@ pub struct UserDocument {
     pub stats: UserStats,
     pub audit: UserAudit,
     #[serde(rename="createdAt")]
-    pub created_at: DateTime<Utc>,
+    pub created_at: DateTime,
     #[serde(rename="updatedAt")]
-    pub updated_at: DateTime<Utc>
+    pub updated_at: DateTime
 }
 
 #[derive(Serialize, Deserialize)]

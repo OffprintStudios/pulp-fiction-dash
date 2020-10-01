@@ -8,34 +8,64 @@ pub mod audit_session;
 
 use mongodb::Database;
 use mongodb::options::{FindOneAndUpdateOptions, ReturnDocument};
-use mongodb::bson::{doc, Document, from_bson, Bson};
+use mongodb::bson::{doc, from_bson, Bson};
 use chrono::{DateTime, Utc, Duration};
 use argon2::{self, Config, ThreadMode, Variant, Version};
 use easy_hasher::easy_hasher::sha256;
-use regex::Regex;
 
 use user_document::UserDocument;
 
 impl UserDocument {
     /// Verifies a password.
-    async fn verify_password(&self, password_to_check: &str) {
-        let password_hash = self.password.clone();
-
+    async fn verify_password(&self, password_to_check: &str) -> bool {
+        let password_hash = self.password.clone(); 
+        let password_parts = password_hash.split("$").skip(4);
+        let mut salt_and_hash: Vec<String> = Vec::new();
+        for part in password_parts {
+            salt_and_hash.push(part.to_string());
+        }
         let config: Config = Config {
             variant: Variant::Argon2id, version: Version::Version13, mem_cost: 4096,
             time_cost: 3, lanes: 1, thread_mode: ThreadMode::Sequential,
             ad: &[], hash_length: 32, secret: &[]
         };
+
+        println!("Old Salt: {}", salt_and_hash[0]);
+        println!("Old Hash: {}", salt_and_hash[1]);
+
+        let new_hash = match argon2::hash_encoded(password_to_check.as_bytes(), salt_and_hash[0].as_bytes(), &config) {
+            Ok(hash) => hash,
+            Err(_) => unimplemented!("hashing failed!")
+        };
+
+        println!("New Hash: {}", new_hash);
+        println!("Old Hash: {}", password_hash);
+
+        match argon2::verify_encoded(&new_hash, password_hash.as_bytes()) {
+            Ok(true) => true,
+            Ok(false) => false,
+            Err(_) => unimplemented!("verification failed!")
+        }
     }
 
     /// Finds a user by their email. If found, returns the user document.
     /// 
     /// Otherwise, returns `None`.
-    pub async fn find_one_by_email(db: Database, potential_email: String) -> Option<Document> {
+    pub async fn find_one_by_email(db: Database, potential_email: String) -> Option<UserDocument> {
         let coll = db.collection("users");
+        let find_one_doc = doc!{"email": &potential_email, "audit.isDeleted": false};
+        println!("{}", find_one_doc);
         
-        match coll.find_one(doc!{"email": potential_email, "audit.isDeleted": false}, None).await {
-            Ok(doc) => doc,
+        match coll.find_one(find_one_doc, None).await {
+            Ok(doc) => {
+                match doc {
+                    Some(user) => {
+                        let user_doc = from_bson::<UserDocument>(Bson::Document(user)).unwrap();
+                        Some(user_doc)
+                    },
+                    None => None
+                }
+            },
             Err(e) => unimplemented!("{}", e) // we should handle mongodb errors gracefully
         }
     }
@@ -67,5 +97,18 @@ impl UserDocument {
             },
             None => None
         }
+    }
+
+    pub async fn login(db: Database, email: String, password: String) {
+        let potential_user = UserDocument::find_one_by_email(db.clone(), email.clone()).await;
+        let matched_user = match potential_user {
+            Some(user) => user,
+            None => unimplemented!("No user found!")
+        };
+
+        match matched_user.verify_password(&password).await {
+            true => println!("user verified!"),
+            false => println!("user not valid!")
+        };
     }
 }

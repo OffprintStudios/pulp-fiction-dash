@@ -1836,7 +1836,6 @@ dependencies = [
  "maplit",
  "mongodb",
  "nanoid",
- "regex",
  "rocket",
  "rocket_contrib",
  "rust-argon2",

@@ -27,7 +27,6 @@ extern crate nanoid;
 extern crate easy_hasher;
 extern crate dotenv;
 #[macro_use] extern crate dotenv_codegen;
-extern crate regex;
 
 mod api;
 mod db;
@@ -58,6 +57,7 @@ async fn file_index(path: PathBuf) -> Option<NamedFile> {
 async fn t_minus() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", routes![index, file_index])
+        .mount("/api", routes![api::auth::login::login])
         .attach(SpaceHelmet::default())
         .manage(db::init_pulp_db().await)
 }
