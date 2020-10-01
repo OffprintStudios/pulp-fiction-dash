@@ -21,6 +21,10 @@ use rocket_contrib::json::JsonValue;
 /* MongoDB */
 use mongodb::error::Error as MongoError;
 
+/// # ApiResponse
+/// 
+/// A response from the API. Also includes serveral helper functions to help 
+/// dictate what gets sent to the client.
 #[derive(Debug)]
 pub struct ApiResponse {
     data: JsonValue,
