@@ -58,7 +58,8 @@ async fn t_minus() -> rocket::Rocket {
     rocket::ignite()
         .mount("/", routes![index, file_index])
         .mount("/api", routes![
-            api::auth::login::login
+            api::auth::login,
+            api::auth::logout
         ])
         .attach(SpaceHelmet::default())
         .manage(db::init_pulp_db().await)
