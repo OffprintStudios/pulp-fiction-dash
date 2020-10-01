@@ -6,12 +6,20 @@ pub mod user_document;
 pub mod roles;
 pub mod audit_session;
 
+use crate::api::auth::models::jwt_payload::JwtPayload;
+
+use rocket::State;
+use rocket::http::Status;
+use rocket::request::{self, Request, FromRequest, Outcome};
+
 use mongodb::Database;
 use mongodb::options::{FindOneAndUpdateOptions, ReturnDocument};
 use mongodb::bson::{doc, from_bson, Bson};
 use chrono::{DateTime, Utc, Duration};
 use argonautica::Verifier;
 use easy_hasher::easy_hasher::sha256;
+use jsonwebtoken::errors::ErrorKind;
+use jsonwebtoken::{decode, Validation, DecodingKey};
 
 use user_document::UserDocument;
 
@@ -77,6 +85,7 @@ impl UserDocument {
         }
     }
 
+    /// Logs a user in.
     pub async fn login(db: Database, email: String, password: String) -> Option<UserDocument> {
         let potential_user = UserDocument::find_one_by_email(db.clone(), email.clone()).await;
         let matched_user = match potential_user {
@@ -87,6 +96,55 @@ impl UserDocument {
         match matched_user.verify_password(&password).await {
             true => Some(matched_user),
             false => None
+        }
+    }
+
+    /// Gets a user from a JSON web token.
+    pub async fn get_user_from_token(db: Database, token: &str) -> Result<UserDocument, String> {
+        let coll = db.collection("users");
+        let secret = dotenv!("JWT_SECRET");
+
+        let validation = Validation {leeway: 60, ..Validation::default()};
+        let token_data = match decode::<JwtPayload>(token, &DecodingKey::from_secret(secret.as_bytes()), &validation) {
+            Ok(data) => data,
+            Err(err) => match *err.kind() {
+                ErrorKind::InvalidToken => return Err("Invalid token.".to_string()),
+                ErrorKind::InvalidIssuer => return Err("Issuer is invalid".to_string()),
+                ErrorKind::ExpiredSignature => return Err("Expired Signature".to_string()),
+                _ => return Err("An unknown error occurred.".to_string())
+            }
+        };
+
+        match coll.find_one(doc!{"_id": token_data.claims.get_id()}, None).await {
+            Ok(doc) => {
+                match doc {
+                    Some(user) => {
+                        let user_doc = from_bson::<UserDocument>(Bson::Document(user)).unwrap();
+                        Ok(user_doc)
+                    },
+                    None => Err("User not found".to_string())
+                }
+            },
+            Err(e) => unimplemented!("{}", e) 
+        }
+    }
+}
+
+#[rocket::async_trait]
+impl<'a, 'r> FromRequest<'a, 'r> for UserDocument {
+    type Error = ();
+
+    async fn from_request(request: &'a Request<'r>) -> request::Outcome<Self, Self::Error> {
+        let conn = rocket::try_outcome!(request.guard::<State<Database>>().await);
+        let keys: Vec<_> = request.headers().get("Authorization").collect();
+        if keys.len() != 1 {
+            return Outcome::Failure((Status::BadRequest, ()));
+        }
+
+        let token = keys[0].replace("Bearer ", "");
+        match UserDocument::get_user_from_token(conn.clone(), &token).await {
+            Ok(user) => Outcome::Success(user),
+            Err(_) => Outcome::Failure((Status::Unauthorized, ()))
         }
     }
 }
