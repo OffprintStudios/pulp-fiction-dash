@@ -443,6 +443,42 @@ class AuthService {
             return Object(rxjs__WEBPACK_IMPORTED_MODULE_1__["throwError"])(err);
         }));
     }
+    /**
+     * Refreshes the current user token with new User info.
+     * If refresh fails,
+     */
+    refreshToken() {
+        return this.http.get(`${this.url}/refresh-token`, { observe: 'response', withCredentials: true })
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(user => {
+            localStorage.setItem('currentUser', JSON.stringify(user.body));
+            this.currUserSubject.next(user.body.data);
+            return user.body.data.token;
+        }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["catchError"])(err => {
+            if (err.status === 403) {
+                // A 403 means that the refreshToken has expired, or we didn't send one up at all, which is Super Suspicious          
+                localStorage.removeItem('currentUser');
+                this.currUserSubject.next(null);
+                this.router.navigate(['/home/latest']);
+                this.snackBar.open(`${err.error.message}. You have been logged out.`);
+                return null;
+            }
+            this.snackBar.open(err.error.message);
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_1__["throwError"])(err);
+        }));
+    }
+    /**
+     * Logs the user out, sets the user object to null, removes their info from localStorage, and
+     * navigates to home.
+     */
+    logout() {
+        // Fire and forget. If this fails, it doesn't matter to the user, 
+        // and we don't want to leak that fact anyway.
+        this.http.get(`${this.url}/logout`, { withCredentials: true }).subscribe();
+        localStorage.removeItem('currentUser');
+        this.currUserSubject.next(null);
+        this.snackBar.open('See you next time!');
+        this.router.navigate(['/home/latest']);
+    }
 }
 AuthService.ɵfac = function AuthService_Factory(t) { return new (t || AuthService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_common_http__WEBPACK_IMPORTED_MODULE_3__["HttpClient"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_router__WEBPACK_IMPORTED_MODULE_4__["Router"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_material_snack_bar__WEBPACK_IMPORTED_MODULE_5__["MatSnackBar"])); };
 AuthService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"]({ token: AuthService, factory: AuthService.ɵfac, providedIn: 'root' });
@@ -988,32 +1024,74 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AuthInterceptor", function() { return AuthInterceptor; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "fXoL");
-/* harmony import */ var _auth_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./auth.service */ "9ans");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common/http */ "tk/3");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! rxjs */ "qCKp");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs/operators */ "kU1M");
+/* harmony import */ var _auth_service__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./auth.service */ "9ans");
+
+
+
 
 
 
 class AuthInterceptor {
     constructor(authService) {
         this.authService = authService;
+        this.isRefreshing = false;
+        this.refreshTokenSubject = new rxjs__WEBPACK_IMPORTED_MODULE_2__["BehaviorSubject"](null);
     }
+    /**
+     * Intercepts all outgoing requests to the backend and sets an Authorization header
+     * on each one.
+     *
+     * @param req The outgoing request
+     * @param next Passes the request along to the next handler
+     */
     intercept(req, next) {
-        let currentUser = this.authService.currUserValue;
-        if (currentUser && currentUser.token) {
-            console.log(req);
-            req = req.clone({
-                setHeaders: {
-                    Authorization: `Bearer ${currentUser.token}`
-                }
-            });
+        const currentUser = this.authService.currUserValue;
+        if (!(currentUser === null || currentUser === void 0 ? void 0 : currentUser.token)) {
+            return next.handle(req);
         }
-        return next.handle(req);
+        req = this.addToken(req, currentUser.token);
+        return next.handle(req)
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["catchError"])(error => {
+            // If this was a 401, refresh and try again before failing out.
+            if (error instanceof _angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpErrorResponse"] && error.status == 401) {
+                return this.tryRefresh(req, next);
+            }
+            else {
+                return Object(rxjs__WEBPACK_IMPORTED_MODULE_2__["throwError"])(error);
+            }
+        }));
+    }
+    tryRefresh(req, next) {
+        if (this.isRefreshing) {
+            // Sit and wait for the refresh attempt currently in-progress.
+            return this.refreshTokenSubject.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["filter"])(token => token != null), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["take"])(1), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["switchMap"])(jwt => {
+                return next.handle(this.addToken(req, jwt));
+            }));
+        }
+        this.isRefreshing = true;
+        this.refreshTokenSubject.next(null);
+        return this.authService.refreshToken().pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_3__["switchMap"])((token) => {
+            this.isRefreshing = false;
+            this.refreshTokenSubject.next(token);
+            return next.handle(this.addToken(req, token));
+        }));
+    }
+    addToken(req, token) {
+        return req.clone({
+            setHeaders: {
+                Authorization: `Bearer ${token}`
+            }
+        });
     }
 }
-AuthInterceptor.ɵfac = function AuthInterceptor_Factory(t) { return new (t || AuthInterceptor)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"])); };
+AuthInterceptor.ɵfac = function AuthInterceptor_Factory(t) { return new (t || AuthInterceptor)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_auth_service__WEBPACK_IMPORTED_MODULE_4__["AuthService"])); };
 AuthInterceptor.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"]({ token: AuthInterceptor, factory: AuthInterceptor.ɵfac });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](AuthInterceptor, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"]
-    }], function () { return [{ type: _auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"] }]; }, null); })();
+    }], function () { return [{ type: _auth_service__WEBPACK_IMPORTED_MODULE_4__["AuthService"] }]; }, null); })();
 
 
 /***/ }),

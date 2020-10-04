@@ -1,6 +1,6 @@
 use mongodb::bson::DateTime;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct AuditSession {
     pub _id: String,
     pub expires: DateTime,

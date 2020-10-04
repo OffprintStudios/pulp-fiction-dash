@@ -62,6 +62,7 @@ async fn t_minus() -> rocket::Rocket {
         .mount("/", routes![index, file_index])
         .mount("/api", routes![
             api::auth::login,
+            api::auth::refresh_token,
             api::auth::logout
         ])
         .attach(SpaceHelmet::default())

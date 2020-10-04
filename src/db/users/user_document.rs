@@ -2,7 +2,7 @@ use crate::db::users::{roles::Roles, audit_session::AuditSession};
 
 use mongodb::bson::DateTime;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct UserDocument {
     pub _id: String,
     pub email: String,
@@ -19,7 +19,7 @@ pub struct UserDocument {
     pub updated_at: DateTime
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct UserProfile {
     pub avatar: String,
     #[serde(rename="themePref")]
@@ -28,7 +28,7 @@ pub struct UserProfile {
     pub tagline: Option<String>
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct UserStats {
     pub works: i32,
     pub blogs: i32,
@@ -36,7 +36,7 @@ pub struct UserStats {
     pub watching: i32
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct UserAudit {
     pub roles: Vec<Roles>,
     pub sessions: Option<Vec<AuditSession>>,
