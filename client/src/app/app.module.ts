@@ -11,9 +11,18 @@ import { MaterialModule } from './modules/material/material.module';
 import { IconsModule } from './modules/icons/icons.module';
 import { AuthInterceptor } from './services/auth';
 
+import { HomeComponent } from './pages/home';
+import { QueueComponent } from './pages/queue';
+import { NewsComponent } from './pages/news';
+import { DocsComponent } from './pages/docs';
+import { ReportsComponent } from './pages/reports';
+import { UsersComponent } from './pages/users';
+import { AuditComponent } from './pages/audit';
+
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent, HomeComponent, QueueComponent, NewsComponent, DocsComponent,
+    ReportsComponent, UsersComponent, AuditComponent
   ],
   imports: [
     BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule,
