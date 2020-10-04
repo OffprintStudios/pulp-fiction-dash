@@ -1,7 +1,6 @@
 /target
 .env
 .DS_Store
-static/*
 
 # Added by cargo
 #
