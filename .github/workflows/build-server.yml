@@ -17,6 +17,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Create .env File
+      run: touch .env
+
+    - name: Add database URL to env file
+      run: echo "DATABASE_URL=mongodb://localhost:27017" >> .env
+
+    - name: Add database name to env file
+      run: echo "DATABASE_NAME=a_database" >> .env
+
+    - name: Add JWT secret to env file
+      run: echo "JWT_SECRET=asecretworthkeeping" >> .env
+
     - name: Build
       run: cargo build --verbose
 
