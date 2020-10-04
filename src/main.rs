@@ -27,6 +27,8 @@ extern crate nanoid;
 extern crate easy_hasher;
 extern crate dotenv;
 #[macro_use] extern crate dotenv_codegen;
+extern crate uuid;
+extern crate time;
 
 mod api;
 mod db;
