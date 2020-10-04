@@ -43,4 +43,8 @@ export class AppComponent {
       this.loadingLogin = false;
     });
   }
+
+  logOut() {
+    this.authService.logout();
+  }
 }

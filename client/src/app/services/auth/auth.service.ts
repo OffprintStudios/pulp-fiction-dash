@@ -83,11 +83,13 @@ export class AuthService {
   public logout(): void {
     // Fire and forget. If this fails, it doesn't matter to the user, 
     // and we don't want to leak that fact anyway.
-    this.http.get(`${this.url}/logout`, { withCredentials: true }).subscribe();
-    
-    localStorage.removeItem('currentUser');
-    this.currUserSubject.next(null);
-    this.snackBar.open('See you next time!');
-    this.router.navigate(['/home/latest']);    
+    this.http.get(`${this.url}/logout`, { withCredentials: true }).subscribe(() => {
+      localStorage.removeItem('currentUser');
+      this.currUserSubject.next(null);
+      this.snackBar.open('See you next time!');
+      this.router.navigate(['/']).then(() => {
+        location.reload();
+      });   
+    });
   }
 }

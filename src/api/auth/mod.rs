@@ -80,7 +80,10 @@ pub async fn logout(conn: PulpDb, user: RefreshUser, cookies: &CookieJar<'_>) ->
     };
 
     match user.0.clear_refresh_token(conn.0.clone(), refresh_cookie).await {
-        Ok(()) => Ok(ApiResponse::ok().message("See you later!")),
+        Ok(()) => {
+            cookies.remove(Cookie::named("refreshToken"));
+            Ok(ApiResponse::ok().message("See you later!"))
+        },
         Err(_) => Err(ApiResponse::internal_server_error().message("Something went wrong trying to log you out."))
     }
 }

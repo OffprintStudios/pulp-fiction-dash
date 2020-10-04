@@ -92,21 +92,91 @@ HomeComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComp
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AuthGuard", function() { return AuthGuard; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "fXoL");
+/* harmony import */ var _auth0_angular_jwt__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @auth0/angular-jwt */ "Nm8O");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lodash */ "LvDl");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _auth_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./auth.service */ "9ans");
+/* harmony import */ var _angular_material_snack_bar__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/material/snack-bar */ "dNgK");
+
+
+
+
 
 
 class AuthGuard {
-    canActivate(route, state) {
-        return true;
+    constructor(authService, snackBar) {
+        this.authService = authService;
+        this.snackBar = snackBar;
+        this.helper = new _auth0_angular_jwt__WEBPACK_IMPORTED_MODULE_1__["JwtHelperService"]();
+    }
+    /**
+     * Verifies that a user can access a protected route. If their JWT is expired, it makes a request to the backend to
+     * verify that an active session is still present. If one is, the route request is approved. If one isn't, then the
+     * request is denied.
+     *
+     * @param next The next route requested
+     * @param state Current state of the router
+     */
+    canActivate(next, state) {
+        const currentUser = this.authService.currUserValue;
+        if (currentUser && currentUser.token) {
+            if (next.data.roles) {
+                const hasRoles = lodash__WEBPACK_IMPORTED_MODULE_2__["intersection"](next.data.roles, currentUser.roles);
+                if (hasRoles.length === 0) {
+                    this.snackBar.open(`You don't have permission to do that.`);
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            this.snackBar.open(`You don't have permission to do that.`);
+            return false;
+        }
+    }
+    /**
+     * Does the same thing as the above, but on any child routes that must be protected. This one is declared on
+     * the route parent.
+     *
+     * @param next The next route requested
+     * @param state Current state of the router
+     */
+    canActivateChild(next, state) {
+        const currentUser = this.authService.currUserValue;
+        if (currentUser && currentUser.token) {
+            if (next.data.roles) {
+                const hasRoles = lodash__WEBPACK_IMPORTED_MODULE_2__["intersection"](next.data.roles, currentUser.roles);
+                if (hasRoles.length === 0) {
+                    this.snackBar.open(`You don't have permission to do that.`);
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            this.snackBar.open(`You don't have permission to do that.`);
+            return false;
+        }
     }
 }
-AuthGuard.ɵfac = function AuthGuard_Factory(t) { return new (t || AuthGuard)(); };
+AuthGuard.ɵfac = function AuthGuard_Factory(t) { return new (t || AuthGuard)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_auth_service__WEBPACK_IMPORTED_MODULE_3__["AuthService"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_material_snack_bar__WEBPACK_IMPORTED_MODULE_4__["MatSnackBar"])); };
 AuthGuard.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"]({ token: AuthGuard, factory: AuthGuard.ɵfac, providedIn: 'root' });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](AuthGuard, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"],
         args: [{
                 providedIn: 'root'
             }]
-    }], null, null); })();
+    }], function () { return [{ type: _auth_service__WEBPACK_IMPORTED_MODULE_3__["AuthService"] }, { type: _angular_material_snack_bar__WEBPACK_IMPORTED_MODULE_4__["MatSnackBar"] }]; }, null); })();
 
 
 /***/ }),
@@ -473,11 +543,14 @@ class AuthService {
     logout() {
         // Fire and forget. If this fails, it doesn't matter to the user, 
         // and we don't want to leak that fact anyway.
-        this.http.get(`${this.url}/logout`, { withCredentials: true }).subscribe();
-        localStorage.removeItem('currentUser');
-        this.currUserSubject.next(null);
-        this.snackBar.open('See you next time!');
-        this.router.navigate(['/home/latest']);
+        this.http.get(`${this.url}/logout`, { withCredentials: true }).subscribe(() => {
+            localStorage.removeItem('currentUser');
+            this.currUserSubject.next(null);
+            this.snackBar.open('See you next time!');
+            this.router.navigate(['/']).then(() => {
+                location.reload();
+            });
+        });
     }
 }
 AuthService.ɵfac = function AuthService_Factory(t) { return new (t || AuthService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_common_http__WEBPACK_IMPORTED_MODULE_3__["HttpClient"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_router__WEBPACK_IMPORTED_MODULE_4__["Router"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_material_snack_bar__WEBPACK_IMPORTED_MODULE_5__["MatSnackBar"])); };
@@ -676,6 +749,31 @@ QueueComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineCom
 
 /***/ }),
 
+/***/ "L1j7":
+/*!*******************************************!*\
+  !*** ./src/app/models/user/roles.enum.ts ***!
+  \*******************************************/
+/*! exports provided: Roles */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Roles", function() { return Roles; });
+var Roles;
+(function (Roles) {
+    Roles["User"] = "User";
+    Roles["Supporter"] = "Supporter";
+    Roles["Moderator"] = "Moderator";
+    Roles["Admin"] = "Admin";
+    Roles["WorkApprover"] = "WorkApprover";
+    Roles["Contributor"] = "Contributor";
+    Roles["VIP"] = "VIP";
+    Roles["ChatModerator"] = "ChatModerator";
+})(Roles || (Roles = {}));
+
+
+/***/ }),
+
 /***/ "MbfK":
 /*!****************************************!*\
   !*** ./src/app/pages/reports/index.ts ***!
@@ -780,6 +878,7 @@ const _c4 = function () { return ["/reports"]; };
 const _c5 = function () { return ["/users"]; };
 const _c6 = function () { return ["/audit"]; };
 function AppComponent_ng_template_1_Template(rf, ctx) { if (rf & 1) {
+    const _r7 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵgetCurrentView"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](0, "div", 14);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](1, "div", 15);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](2, "header");
@@ -788,6 +887,7 @@ function AppComponent_ng_template_1_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelement"](5, "img", 18);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](6, "div", 19);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](7, "a", 20);
+    _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵlistener"]("click", function AppComponent_ng_template_1_Template_a_click_7_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵrestoreView"](_r7); const ctx_r6 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵnextContext"](); return ctx_r6.logOut(); });
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementStart"](8, "span", 21);
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](9, "sign out");
     _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵelementEnd"]();
@@ -923,9 +1023,12 @@ class AppComponent {
             this.loadingLogin = false;
         });
     }
+    logOut() {
+        this.authService.logout();
+    }
 }
 AppComponent.ɵfac = function AppComponent_Factory(t) { return new (t || AppComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](_services_auth__WEBPACK_IMPORTED_MODULE_2__["AuthService"])); };
-AppComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: AppComponent, selectors: [["app-root"]], decls: 3, vars: 2, consts: [[4, "ngIf", "ngIfElse"], ["isUser", ""], [1, "login-container"], [1, "login-box"], [1, "login-header"], ["src", "assets/icons/dashlogo.png"], [1, "login-body"], [3, "formGroup", "ngSubmit"], ["matInput", "", "formControlName", "email", "placeholder", "someone@offprint.net"], ["matInput", "", "type", "password", "formControlName", "password", "placeholder", "Super Secret"], ["formControlName", "rememberMe"], ["type", "submit", "matRipple", "", 1, "button-primary"], ["mode", "indeterminate", 4, "ngIf"], ["mode", "indeterminate"], [1, "main-page"], [1, "nav"], [1, "nav-box"], [1, "user-menu-nav"], [1, "user-menu-avatar", 3, "src"], [1, "user-menu-dropdown"], [1, "menu-icon"], [1, "stat-counter"], [1, "site-logo"], [1, "search-menu"], ["matRipple", "", 1, "search"], [1, "nav-items"], ["matRipple", "", "routerLinkActive", "router-link-active", 3, "routerLink"], [1, "link-icon"], ["name", "home"], ["matRipple", "", "routerLinkActive", "router-link-active", 1, "inner-left", 3, "routerLink"], ["name", "list"], ["name", "hash"], ["name", "briefcase"], ["name", "alert-triangle"], ["name", "users"], ["name", "clipboard"], [1, "main-stage"], [1, "container"], [1, "footer"], [1, "footer-info"]], template: function AppComponent_Template(rf, ctx) { if (rf & 1) {
+AppComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: AppComponent, selectors: [["app-root"]], decls: 3, vars: 2, consts: [[4, "ngIf", "ngIfElse"], ["isUser", ""], [1, "login-container"], [1, "login-box"], [1, "login-header"], ["src", "assets/icons/dashlogo.png"], [1, "login-body"], [3, "formGroup", "ngSubmit"], ["matInput", "", "formControlName", "email", "placeholder", "someone@offprint.net"], ["matInput", "", "type", "password", "formControlName", "password", "placeholder", "Super Secret"], ["formControlName", "rememberMe"], ["type", "submit", "matRipple", "", 1, "button-primary"], ["mode", "indeterminate", 4, "ngIf"], ["mode", "indeterminate"], [1, "main-page"], [1, "nav"], [1, "nav-box"], [1, "user-menu-nav"], [1, "user-menu-avatar", 3, "src"], [1, "user-menu-dropdown"], [1, "menu-icon", 3, "click"], [1, "stat-counter"], [1, "site-logo"], [1, "search-menu"], ["matRipple", "", 1, "search"], [1, "nav-items"], ["matRipple", "", "routerLinkActive", "router-link-active", 3, "routerLink"], [1, "link-icon"], ["name", "home"], ["matRipple", "", "routerLinkActive", "router-link-active", 1, "inner-left", 3, "routerLink"], ["name", "list"], ["name", "hash"], ["name", "briefcase"], ["name", "alert-triangle"], ["name", "users"], ["name", "clipboard"], [1, "main-stage"], [1, "container"], [1, "footer"], [1, "footer-info"]], template: function AppComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](0, AppComponent_ng_container_0_Template, 20, 2, "ng-container", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](1, AppComponent_ng_template_1_Template, 58, 15, "ng-template", null, 1, _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplateRefExtractor"]);
     } if (rf & 2) {
@@ -1348,6 +1451,23 @@ ReportsComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineC
 
 /***/ }),
 
+/***/ "soPI":
+/*!**************************************!*\
+  !*** ./src/app/models/user/index.ts ***!
+  \**************************************/
+/*! exports provided: Roles */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _roles_enum__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./roles.enum */ "L1j7");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Roles", function() { return _roles_enum__WEBPACK_IMPORTED_MODULE_0__["Roles"]; });
+
+
+
+
+/***/ }),
+
 /***/ "uBbC":
 /*!*************************************!*\
   !*** ./src/app/pages/news/index.ts ***!
@@ -1377,13 +1497,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppRoutingModule", function() { return AppRoutingModule; });
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "fXoL");
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/router */ "tyNb");
-/* harmony import */ var _pages_audit__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./pages/audit */ "bGt0");
-/* harmony import */ var _pages_docs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./pages/docs */ "gBC0");
-/* harmony import */ var _pages_home__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./pages/home */ "1GhG");
-/* harmony import */ var _pages_news__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./pages/news */ "uBbC");
-/* harmony import */ var _pages_queue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./pages/queue */ "X6oM");
-/* harmony import */ var _pages_reports__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./pages/reports */ "MbfK");
-/* harmony import */ var _pages_users__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./pages/users */ "72Qd");
+/* harmony import */ var _services_auth__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./services/auth */ "ly9n");
+/* harmony import */ var _models_user__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./models/user */ "soPI");
+/* harmony import */ var _pages_audit__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./pages/audit */ "bGt0");
+/* harmony import */ var _pages_docs__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./pages/docs */ "gBC0");
+/* harmony import */ var _pages_home__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./pages/home */ "1GhG");
+/* harmony import */ var _pages_news__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./pages/news */ "uBbC");
+/* harmony import */ var _pages_queue__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./pages/queue */ "X6oM");
+/* harmony import */ var _pages_reports__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./pages/reports */ "MbfK");
+/* harmony import */ var _pages_users__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./pages/users */ "72Qd");
+
+
 
 
 
@@ -1396,13 +1520,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const routes = [
-    { path: 'home', component: _pages_home__WEBPACK_IMPORTED_MODULE_4__["HomeComponent"] },
-    { path: 'queue', component: _pages_queue__WEBPACK_IMPORTED_MODULE_6__["QueueComponent"] },
-    { path: 'news', component: _pages_news__WEBPACK_IMPORTED_MODULE_5__["NewsComponent"] },
-    { path: 'docs', component: _pages_docs__WEBPACK_IMPORTED_MODULE_3__["DocsComponent"] },
-    { path: 'reports', component: _pages_reports__WEBPACK_IMPORTED_MODULE_7__["ReportsComponent"] },
-    { path: 'users', component: _pages_users__WEBPACK_IMPORTED_MODULE_8__["UsersComponent"] },
-    { path: 'audit', component: _pages_audit__WEBPACK_IMPORTED_MODULE_2__["AuditComponent"] }
+    { path: 'home', canActivate: [_services_auth__WEBPACK_IMPORTED_MODULE_2__["AuthGuard"]], data: { roles: [_models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Admin, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Moderator, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Contributor, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].WorkApprover] }, component: _pages_home__WEBPACK_IMPORTED_MODULE_6__["HomeComponent"] },
+    { path: 'queue', canActivate: [_services_auth__WEBPACK_IMPORTED_MODULE_2__["AuthGuard"]], data: { roles: [_models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Admin, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Moderator, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Contributor, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].WorkApprover] }, component: _pages_queue__WEBPACK_IMPORTED_MODULE_8__["QueueComponent"] },
+    { path: 'news', canActivate: [_services_auth__WEBPACK_IMPORTED_MODULE_2__["AuthGuard"]], data: { roles: [_models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Admin, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Moderator, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Contributor] }, component: _pages_news__WEBPACK_IMPORTED_MODULE_7__["NewsComponent"] },
+    { path: 'docs', canActivate: [_services_auth__WEBPACK_IMPORTED_MODULE_2__["AuthGuard"]], data: { roles: [_models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Admin, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Moderator, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Contributor] }, component: _pages_docs__WEBPACK_IMPORTED_MODULE_5__["DocsComponent"] },
+    { path: 'reports', canActivate: [_services_auth__WEBPACK_IMPORTED_MODULE_2__["AuthGuard"]], data: { roles: [_models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Admin, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Moderator] }, component: _pages_reports__WEBPACK_IMPORTED_MODULE_9__["ReportsComponent"] },
+    { path: 'users', canActivate: [_services_auth__WEBPACK_IMPORTED_MODULE_2__["AuthGuard"]], data: { roles: [_models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Admin, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Moderator] }, component: _pages_users__WEBPACK_IMPORTED_MODULE_10__["UsersComponent"] },
+    { path: 'audit', canActivate: [_services_auth__WEBPACK_IMPORTED_MODULE_2__["AuthGuard"]], data: { roles: [_models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Admin, _models_user__WEBPACK_IMPORTED_MODULE_3__["Roles"].Moderator] }, component: _pages_audit__WEBPACK_IMPORTED_MODULE_4__["AuditComponent"] }
 ];
 class AppRoutingModule {
 }
