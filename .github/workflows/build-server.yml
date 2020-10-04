@@ -1,4 +1,4 @@
-name: Rust
+name: Server (Build)
 
 on:
   push:
@@ -16,14 +16,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: Set up Node.js environment
-      uses: actions/setup-node@v1.4.3
-      with:
-        node-version: 14.6.0
-    
-    - name: Install global dependencies
-      run: yarn global add @angular/cli @nestjs/cli nx typescript less
 
     - name: Build
       run: cargo build --verbose
