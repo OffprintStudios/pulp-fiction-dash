@@ -8,6 +8,7 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MaterialModule } from './modules/material/material.module';
+import { IconsModule } from './modules/icons/icons.module';
 import { AuthInterceptor } from './services/auth';
 
 @NgModule({
@@ -16,7 +17,7 @@ import { AuthInterceptor } from './services/auth';
   ],
   imports: [
     BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule,
-    HttpClientModule, FormsModule, ReactiveFormsModule
+    HttpClientModule, FormsModule, ReactiveFormsModule, IconsModule
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},

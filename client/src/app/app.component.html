@@ -5,7 +5,7 @@
         <h4>Sign in to the Offprint Dashboard</h4>
       </div>
       <div class="login-body">
-        <form [formGroup]="loginForm">
+        <form [formGroup]="loginForm" (ngSubmit)="submitLogin()">
           <mat-form-field>
             <mat-label>Email</mat-label>
             <input matInput formControlName="email" placeholder="someone@offprint.net">
@@ -15,7 +15,7 @@
             <input matInput type="password" formControlName="password" placeholder="Super Secret">
           </mat-form-field>
           <mat-slide-toggle formControlName="rememberMe">Remember me for thirty days</mat-slide-toggle>
-          <button matRipple class="button-primary">Log In</button>
+          <button type="submit" matRipple class="button-primary">Log In</button>
         </form>
       </div>
       <mat-progress-bar mode="indeterminate" *ngIf="loadingLogin"></mat-progress-bar>
@@ -24,5 +24,42 @@
 </ng-container>
 
 <ng-template #isUser>
-  <router-outlet></router-outlet>
+  <div class="main-page">
+    <div class="nav">
+      <header>
+        <div class="nav-box">
+          <div class="user-menu-nav">
+            <img matTooltip="Log Out" matTooltipClass="offprint-tooltip" class="user-menu-avatar" [src]="currentUser.profile.avatar"/>
+            <div class="user-menu-dropdown">
+              <a matTooltip="Log Out" matTooltipClass="offprint-tooltip" class="menu-icon"><span class="stat-counter">Log Out</span></a>
+            </div>
+          </div>
+          <div class="site-logo">
+            <h1><a class="offprint" [routerLink]="['/home']">OFFPRINT</a></h1>
+          </div>
+          <div class="search-menu">
+            <button matRipple class="search">Search</button>
+          </div>
+        </div>
+      </header>
+    </div>
+    
+    <nav>
+      <div class="nav-items">
+        <a matRipple [routerLink]="['/home']" routerLinkActive="router-link-active"><span class="link-icon"><i-feather name="home"></i-feather></span><span>Home</span></a>
+        <a matRipple [routerLink]="['/queue']" routerLinkActive="router-link-active" class="inner-left"><span class="link-icon"><i-feather name="list"></i-feather></span><span>Queue</span></a> 
+        <a matRipple [routerLink]="['/news']" routerLinkActive="router-link-active"><span class="link-icon"><i-feather name="hash"></i-feather></span><span>News</span></a>
+        <a matRipple [routerLink]="['/docs']" routerLinkActive="router-link-active"><span class="link-icon"><i-feather name="briefcase"></i-feather></span><span>Docs</span></a>
+        <a matRipple [routerLink]="['/reports']" routerLinkActive="router-link-active"><span class="link-icon"><i-feather name="alert-triangle"></i-feather></span><span>Reports</span></a>
+        <a matRipple [routerLink]="['/users']" routerLinkActive="router-link-active"><span class="link-icon"><i-feather name="users"></i-feather></span><span>Users</span></a>
+        <a matRipple [routerLink]="['/audit']" routerLinkActive="router-link-active"><span class="link-icon"><i-feather name="clipboard"></i-feather></span><span>Audit Log</span></a>
+      </div>
+    </nav>
+    
+    <div class="main-stage">
+      <div class="container">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
 </ng-template>
