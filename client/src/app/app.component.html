@@ -31,7 +31,7 @@
           <div class="user-menu-nav">
             <img class="user-menu-avatar" [src]="currentUser.profile.avatar"/>
             <div class="user-menu-dropdown">
-              <a class="menu-icon" matRipple><span class="stat-counter">sign out</span></a>
+              <a class="menu-icon"><span class="stat-counter">sign out</span></a>
             </div>
           </div>
           <div class="site-logo">
@@ -59,6 +59,12 @@
     <div class="main-stage">
       <div class="container">
         <router-outlet></router-outlet>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-info">
+        &copy; 2020 Offprint Studios
       </div>
     </div>
   </div>
