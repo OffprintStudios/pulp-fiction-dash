@@ -13,13 +13,13 @@ use rocket::http::Status;
 use rocket::request::{self, Request, FromRequest, Outcome};
 
 use mongodb::Database;
-use mongodb::options::{FindOneAndUpdateOptions, ReturnDocument};
 use mongodb::bson::{doc, from_bson, Bson};
 use chrono::{DateTime, Utc, Duration};
 use argonautica::Verifier;
 use easy_hasher::easy_hasher::sha256;
 use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, Validation, DecodingKey};
+use array_tool::vec::*;
 
 use user_document::UserDocument;
 
@@ -57,45 +57,72 @@ impl UserDocument {
     }
 
     /// Adds a new refresh session ID to the user's sessions array on their document.
-    pub async fn add_refresh_token(db: Database, user_id: String, session_id: String) -> Option<audit_session::AuditSession> {
+    pub async fn add_refresh_token(db: Database, user_id: String, session_id: String) -> Result<(), mongodb::error::Error> {
         let coll = db.collection("users");
 
         let hashed_session_id = sha256(&session_id).to_hex_string();
         let now: DateTime<Utc> = Utc::now();
-        let find_options = FindOneAndUpdateOptions::builder().return_document(ReturnDocument::After).build();
 
-        let updated_value = match coll.find_one_and_update(doc!{"_id": user_id}, 
-            doc!{"$push": {"audit.sessions": {"_id": &hashed_session_id, "createdAt": now, "expires": now + Duration::seconds(2592000000)}}}, 
-            Some(find_options)).await {
-                Ok(doc) => doc,
-                Err(e) => unimplemented!("{}", e) // we should handle mongodb errors gracefully
+        match coll.update_one(doc!{"_id": user_id}, 
+            doc!{"$push": {"audit.sessions": {"_id": &hashed_session_id, "createdAt": now, "expires": now + Duration::seconds(2628000)}}}, 
+            None).await {
+                Ok(_doc) => Ok(()),
+                Err(e) => Err(e) // we should handle mongodb errors gracefully
+        }
+    }
+
+    /// Removes the given session ID from a user's sessions array on their document.
+    pub async fn clear_refresh_token(db: Database, user_id: String, session_id: String) -> Result<(), mongodb::error::Error> {
+        let coll = db.collection("users");
+        let hashed_session_id = sha256(&session_id).to_hex_string();
+
+        match coll.update_one(doc!{"_id": user_id}, doc!{"$pull": {"audit.sessions": {"_id": hashed_session_id}}}, None).await {
+            Ok(_res) => Ok(()),
+            Err(e) => Err(e)
+        }
+    }
+
+    /// Determines if the supposed refresh token matches a valid session ID 
+    /// in the user's document. If yes, then it returns true. Otherwise, 
+    /// returns false.
+    pub async fn check_refresh_token(db: Database, user_id: String, session_id: String) -> Result<bool, mongodb::error::Error> {
+        let coll = db.collection("users");
+        let hashed_session_id = sha256(&session_id).to_hex_string();
+
+        let valid_user = match coll.find_one(doc!{"_id": user_id, "audit.sessions._id": hashed_session_id}, None).await {
+            Ok(doc) => doc,
+            Err(e) => return Err(e)
         };
 
-        match updated_value {
-            Some(doc) => {
-                let user: UserDocument = from_bson::<UserDocument>(Bson::Document(doc)).unwrap();
-                let this_session = match user.audit.sessions {
-                    Some(s) => s.into_iter().find(|sess| sess._id == hashed_session_id),
-                    None => return None
-                };
-
-                return this_session;
-            },
-            None => None
+        match valid_user {
+            Some(_user) => Ok(true),
+            None => Ok(false)
         }
     }
 
     /// Logs a user in.
-    pub async fn login(db: Database, email: String, password: String) -> Option<UserDocument> {
+    pub async fn login(db: Database, email: String, password: String) -> Result<Option<UserDocument>, String> {
         let potential_user = UserDocument::find_one_by_email(db.clone(), email.clone()).await;
+
         let matched_user = match potential_user {
             Some(user) => user,
             None => unimplemented!("No user found!")
         };
 
-        match matched_user.verify_password(&password).await {
-            true => Some(matched_user),
-            false => None
+        let role_intersect = matched_user.audit.roles.intersect(vec![
+            roles::Roles::Admin, 
+            roles::Roles::Moderator, 
+            roles::Roles::Contributor,
+            roles::Roles::WorkApprover
+        ]);
+
+        if role_intersect.len() > 0 {
+            match matched_user.verify_password(&password).await {
+                true => Ok(Some(matched_user)),
+                false => Ok(None)
+            }
+        } else {
+            Err("You don't have permission to access the dashboard.".to_string())
         }
     }
 
@@ -142,9 +169,22 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserDocument {
         }
 
         let token = keys[0].replace("Bearer ", "");
-        match UserDocument::get_user_from_token(conn.clone(), &token).await {
-            Ok(user) => Outcome::Success(user),
-            Err(_) => Outcome::Failure((Status::Unauthorized, ()))
+        let user = match UserDocument::get_user_from_token(conn.clone(), &token).await {
+            Ok(user) => user,
+            Err(_) => return Outcome::Failure((Status::Unauthorized, ()))
+        };
+
+        let role_intersect = user.audit.roles.intersect(vec![
+            roles::Roles::Admin, 
+            roles::Roles::Moderator, 
+            roles::Roles::Contributor,
+            roles::Roles::WorkApprover
+        ]);
+
+        if role_intersect.len() > 0 {
+            Outcome::Success(user)
+        } else {
+            Outcome::Failure((Status::Unauthorized, ()))
         }
     }
 }

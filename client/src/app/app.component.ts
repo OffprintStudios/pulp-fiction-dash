@@ -39,6 +39,8 @@ export class AppComponent {
     this.authService.login(credentials).subscribe(() => {
       this.loadingLogin = false;
       this.loginForm.reset();
+    }, () => {
+      this.loadingLogin = false;
     });
   }
 }

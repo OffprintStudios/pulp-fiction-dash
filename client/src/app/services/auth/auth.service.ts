@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -17,7 +18,7 @@ export class AuthService {
   private currUserSubject: BehaviorSubject<ClientUser>;
   public currentUser: Observable<ClientUser>;
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient, private router: Router, private snackBar: MatSnackBar) {
     this.currUserSubject = new BehaviorSubject<ClientUser>(JSON.parse(localStorage.getItem('currentUser')));
     this.currentUser = this.currUserSubject.asObservable();
   }
@@ -46,6 +47,7 @@ export class AuthService {
         });
         return user.body.data;
       }), catchError(err => {
+        this.snackBar.open(err.error.message);
         return throwError(err);
       }));
   }

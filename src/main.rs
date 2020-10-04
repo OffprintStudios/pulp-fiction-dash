@@ -29,6 +29,7 @@ extern crate dotenv;
 #[macro_use] extern crate dotenv_codegen;
 extern crate uuid;
 extern crate time;
+extern crate array_tool;
 
 mod api;
 mod db;
