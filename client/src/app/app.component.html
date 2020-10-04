@@ -1,4 +1,4 @@
-<ng-container>
+<ng-container *ngIf="!currentUser; else isUser">
   <div class="login-container">
     <div class="login-box">
       <div class="login-header">
@@ -22,3 +22,7 @@
     </div>
   </div>
 </ng-container>
+
+<ng-template #isUser>
+  <router-outlet></router-outlet>
+</ng-template>

@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ClientUser } from './models/user';
+import { AuthService } from './services/auth';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +11,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 export class AppComponent {
   title = 'client';
 
+  currentUser: ClientUser;
   loadingLogin = false;
 
   loginForm = new FormGroup({
@@ -17,5 +20,9 @@ export class AppComponent {
     rememberMe: new FormControl(false)
   });
 
-  constructor() {}
+  constructor(private authService: AuthService) {
+    this.authService.currentUser.subscribe(x => {
+      this.currentUser = x;
+    });
+  }
 }
