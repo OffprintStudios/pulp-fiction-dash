@@ -2,4 +2,4 @@
 
 The Offprint administration and moderation dashboard.
 
-![Rust](https://github.com/OffprintStudios/pulp-fiction-dash/workflows/Rust/badge.svg)
+![Server (Build)](https://github.com/OffprintStudios/pulp-fiction-dash/workflows/Server%20(Build)/badge.svg)
