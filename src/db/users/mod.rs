@@ -86,7 +86,7 @@ impl UserDocument {
         let now: DateTime<Utc> = Utc::now();
 
         match coll.update_one(doc!{"_id": self._id.clone()}, 
-            doc!{"$push": {"audit.sessions": {"_id": &hashed_session_id, "createdAt": now, "expires": now + Duration::seconds(2628000)}}, "updatedAt": Utc::now()}, 
+            doc!{"$push": {"audit.sessions": {"_id": &hashed_session_id, "createdAt": now, "expires": now + Duration::seconds(2628000)}}, "$set": {"updatedAt": Utc::now()}}, 
             None).await {
                 Ok(_doc) => Ok(()),
                 Err(e) => Err(e) // we should handle mongodb errors gracefully
@@ -98,7 +98,7 @@ impl UserDocument {
         let coll = db.collection("users");
         let hashed_session_id = sha256(&session_id).to_hex_string();
 
-        match coll.update_one(doc!{"_id": self._id.clone()}, doc!{"$pull": {"audit.sessions": {"_id": hashed_session_id}}, "updatedAt": Utc::now()}, None).await {
+        match coll.update_one(doc!{"_id": self._id.clone()}, doc!{"$pull": {"audit.sessions": {"_id": hashed_session_id}}, "$set": {"updatedAt": Utc::now()}}, None).await {
             Ok(_res) => Ok(()),
             Err(e) => Err(e)
         }

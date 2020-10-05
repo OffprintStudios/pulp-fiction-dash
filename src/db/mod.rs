@@ -8,14 +8,19 @@ pub mod news;
 
 use rocket::State;
 use rocket::request::{self, Request, FromRequest, Outcome};
-use mongodb::{Client, Database, bson::Document};
+use mongodb::{Client, options::{ClientOptions, WriteConcern, Acknowledgment}, Database, bson::Document};
 
 #[derive(Debug)]
 pub struct PulpDb(pub Database);
 
 pub async fn init_pulp_db() -> Database {
     println!("Connecting to the Pulp Fiction Database...");
-    let db = match Client::with_uri_str(dotenv!("DATABASE_URL")).await {
+    let client_options = match ClientOptions::parse(dotenv!("DATABASE_URL")).await {
+        Ok(client) => client,
+        Err(_) => unimplemented!("Could not create connection to client.")
+    };
+
+    let db = match Client::with_options(client_options) {
         Ok(conn) => conn.database(dotenv!("DATABASE_NAME")),
         Err(e) => panic!(e)
     };
