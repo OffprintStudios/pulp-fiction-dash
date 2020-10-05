@@ -3,10 +3,12 @@
 //! TODO: Add more documentation
 
 pub mod users;
+pub mod queue;
+pub mod news;
 
 use rocket::State;
 use rocket::request::{self, Request, FromRequest, Outcome};
-use mongodb::{Client, Database};
+use mongodb::{Client, Database, bson::Document};
 
 #[derive(Debug)]
 pub struct PulpDb(pub Database);
@@ -30,4 +32,17 @@ impl<'a, 'r> FromRequest<'a, 'r> for PulpDb {
         let conn = rocket::try_outcome!(request.guard::<State<Database>>().await);
         Outcome::Success(PulpDb(conn.clone()))
     }
+}
+
+/* Common Traits */
+#[rocket::async_trait]
+pub trait DocumentMethods {
+    /// Saves the document to the database.
+    async fn save(&self, db: Database) -> Result<(), ()>;
+
+    /// Finds an item by its ID.
+    async fn find_one_by_id(db: Database, item_id: String) -> Option<Self> where Self: Sized;
+
+    /// Converts a document to an item struct.
+    async fn convert_from_bson(doc: Document) -> Result<Self, ()> where Self: Sized;
 }
