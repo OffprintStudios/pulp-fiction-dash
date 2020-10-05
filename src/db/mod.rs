@@ -8,7 +8,7 @@ pub mod news;
 
 use rocket::State;
 use rocket::request::{self, Request, FromRequest, Outcome};
-use mongodb::{Client, options::{ClientOptions, WriteConcern, Acknowledgment}, Database, bson::Document};
+use mongodb::{Client, options::ClientOptions, Database, bson::Document};
 
 #[derive(Debug)]
 pub struct PulpDb(pub Database);
