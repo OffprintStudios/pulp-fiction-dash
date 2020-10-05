@@ -28,7 +28,7 @@ nanoid = "0.3.0"
 easy-hasher = "2.2.1"
 dotenv = "0.15.0"
 dotenv_codegen = "0.15.0"
-argonautica = "0.2.0"
+argonautica = { git = "https://github.com/bcmyers/argonautica", branch = "master" }
 uuid = {version = "0.8.1", features = ["serde", "v4"]}
 time = "0.2.22"
 array_tool = "1.0.3"
