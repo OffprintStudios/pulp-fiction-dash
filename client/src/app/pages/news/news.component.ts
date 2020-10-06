@@ -11,6 +11,8 @@ import { AuthService } from 'src/app/services/auth';
 })
 export class NewsComponent implements OnInit {
   currentUser: ClientUser;
+  toggleForm: boolean = false;
+  loadingForm: boolean = false;
 
   searchForm = new FormGroup({
     query: new FormControl('')
@@ -21,4 +23,27 @@ export class NewsComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  toggleNewsForm() {
+    if (this.toggleForm === true) {
+      this.toggleForm = false;
+    } else {
+      this.toggleForm = true;
+    }
+  }
+
+  onFormOpen(event: boolean) {
+    this.loadingForm = event;
+  }
+
+  onSubmit(event: boolean) {
+    if (event === true) {
+      this.toggleForm = false;
+    }
+  }
+
+  onCancel(event: boolean) {
+    if (event === true) {
+      this.toggleForm = false;
+    }
+  }
 }

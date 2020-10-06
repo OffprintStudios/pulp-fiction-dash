@@ -1,6 +1,6 @@
 <div class="tools">
     <div class="tool-buttons">
-        <button matRipple class="tool left"><i-feather name="plus"></i-feather>Post</button>
+        <button matRipple class="tool left" (click)="toggleNewsForm()"><i-feather name="plus"></i-feather>Post</button>
         <button matRipple class="tool end"><i-feather name="filter"></i-feather>Filter</button>
     </div>
     <form [formGroup]="searchForm" class="tool-search">
@@ -10,3 +10,13 @@
         </div>
     </form>
 </div>
+
+form loading: {{ loadingForm }}
+
+<ng-container *ngIf="toggleForm; else listContainer">
+    <newspost-form [toggle]="toggleForm" (onOpening)="onFormOpen($event)" (onSubmit)="onSubmit($event)" (onCancel)="onCancel($event)"></newspost-form>
+</ng-container>
+
+<ng-template #listContainer>
+    hi!
+</ng-template>
