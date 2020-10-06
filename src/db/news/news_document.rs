@@ -10,6 +10,7 @@ pub struct NewsDocument {
     pub title: String,
     pub desc: String,
     pub body: String,
+    pub wordcount: u32,
     pub audit: NewsAudit,
     pub created_at: DateTime,
     pub updated_at: DateTime

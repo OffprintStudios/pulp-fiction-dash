@@ -31,6 +31,7 @@ pub struct ApiResponse {
     status: Status
 }
 
+#[allow(dead_code)]
 impl ApiResponse {
     pub fn data(mut self, data: JsonValue) -> Self {
         self.data = json!({"data": data});
