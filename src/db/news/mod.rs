@@ -23,7 +23,8 @@ impl NewsDocument {
             featured: false,
             category: form.category,
             published: false,
-            published_on: None
+            published_on: None,
+            is_deleted: false
         };
 
         NewsDocument {

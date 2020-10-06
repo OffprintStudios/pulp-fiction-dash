@@ -22,5 +22,6 @@ pub struct NewsAudit {
     pub featured: bool,
     pub category: NewsCategory,
     pub published: bool,
-    pub published_on: Option<DateTime>
+    pub published_on: Option<DateTime>,
+    pub is_deleted: bool
 }
