@@ -21,7 +21,7 @@ use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, Validation, DecodingKey};
 use array_tool::vec::*;
 
-use user_document::UserDocument;
+pub use user_document::UserDocument;
 
 #[derive(Serialize, Deserialize)]
 pub struct RefreshUser(pub UserDocument);

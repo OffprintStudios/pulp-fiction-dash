@@ -13,14 +13,15 @@ use nanoid::nanoid;
 
 use crate::db::DocumentMethods;
 use crate::util::parsing::{get_wordcount, sanitize_html};
+use crate::api::contrib::news::models::NewspostForm;
 
 impl NewsDocument {
-    pub async fn new(user_id: String, title: String, desc: String, body: String, category: NewsCategory) -> Self {
+    pub async fn new(user_id: String, form: NewspostForm) -> Self {
         let news_id = nanoid!(10);
         
         let audit = NewsAudit {
             featured: false,
-            category: category,
+            category: form.category,
             published: false,
             published_on: None
         };
@@ -28,10 +29,10 @@ impl NewsDocument {
         NewsDocument {
             _id: news_id,
             user_id: user_id,
-            title: sanitize_html(&title).await,
-            desc: sanitize_html(&desc).await,
-            body: sanitize_html(&body).await,
-            wordcount: get_wordcount(&sanitize_html(&body).await).await,
+            title: sanitize_html(&form.title).await,
+            desc: sanitize_html(&form.desc).await,
+            body: sanitize_html(&form.body).await,
+            wordcount: get_wordcount(&sanitize_html(&form.body).await).await,
             audit: audit,
             created_at: DateTime(Utc::now()),
             updated_at: DateTime(Utc::now())

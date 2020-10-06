@@ -15,11 +15,9 @@ use crate::db::PulpDb;
 use crate::db::users::user_document::UserDocument;
 use crate::db::users::RefreshUser;
 use crate::api::ApiResponse;
-use models::login_user::LoginUser;
-use models::jwt_payload::JwtPayload;
-use models::client_user::ClientUser;
+use models::{LoginUser, JwtPayload, ClientUser};
 
-#[post("/auth/login", data = "<user_info>", format = "application/json")]
+#[post("/login", data = "<user_info>", format = "application/json")]
 pub async fn login(conn: PulpDb, user_info: Json<LoginUser>, cookies: &CookieJar<'_>) -> Result<ApiResponse, ApiResponse> {
     match UserDocument::login(conn.0.clone(), user_info.email.clone(), user_info.password.clone()).await {
         Ok(user) => {
@@ -50,7 +48,7 @@ pub async fn login(conn: PulpDb, user_info: Json<LoginUser>, cookies: &CookieJar
     }
 }
 
-#[get("/auth/refresh-token")]
+#[get("/refresh-token")]
 pub async fn refresh_token(conn: PulpDb, user: RefreshUser, cookies: &CookieJar<'_>) -> Result<ApiResponse, ApiResponse> {
     let refresh_cookie = match cookies.get("refreshToken") {
         Some(cookie) => cookie,
@@ -72,7 +70,7 @@ pub async fn refresh_token(conn: PulpDb, user: RefreshUser, cookies: &CookieJar<
     }
 }
 
-#[get("/auth/logout")]
+#[get("/logout")]
 pub async fn logout(conn: PulpDb, user: RefreshUser, cookies: &CookieJar<'_>) -> Result<ApiResponse, ApiResponse> {
     let refresh_cookie = match cookies.get("refreshToken") {
         Some(cookie) => cookie.value().to_string(),

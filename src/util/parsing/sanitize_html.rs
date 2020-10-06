@@ -5,7 +5,6 @@ use ammonia::Builder;
 /// ## Arguments
 ///
 /// * `html_string` - A string containing HTML to be sanitized.
-#[allow(dead_code)]
 pub async fn sanitize_html(html_string: &str) -> String {
     Builder::default()
       //Allow inline styles on <div>, <p>, <a>, <img>, and the <hX> tags
