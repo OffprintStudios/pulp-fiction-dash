@@ -1,8 +1,14 @@
-<div class="queue-container">
-    <div class="queue-header">
-        <h2>Content Approval Queue</h2>
+<div class="tools">
+    <div class="tool-buttons">
+        <button matRipple class="tool left"><i-feather name="coffee"></i-feather>My Queue</button>
+        <button matRipple class="tool end"><i-feather name="filter"></i-feather>Filter</button>
     </div>
-    <hr class="header-divider">
+    <form [formGroup]="searchForm" class="tool-search">
+        <div class="search-bar">
+            <input type="text" formControlName="query" class="search-input" placeholder="Search works...">
+            <button matRipple class="search-submit" type="submit"><i-feather name="search"></i-feather></button>
+        </div>
+    </form>
 </div>
 
 <div style="text-align: center; margin-top: 2rem;">

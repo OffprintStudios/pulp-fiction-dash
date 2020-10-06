@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
+
+import { ClientUser } from 'src/app/models/user';
+import { AuthService } from 'src/app/services/auth';
 
 @Component({
   selector: 'app-news',
@@ -6,8 +10,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./news.component.less']
 })
 export class NewsComponent implements OnInit {
+  currentUser: ClientUser;
 
-  constructor() { }
+  searchForm = new FormGroup({
+    query: new FormControl('')
+  });
+
+  constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
   }

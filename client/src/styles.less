@@ -305,6 +305,93 @@ button, a.button, input[type=submit] {
     }
 }
 
+/* Page toolbar */
+div.tools {
+    width: 80%;
+    margin: 0 auto 2rem auto;
+    border: 1px solid var(--site-borders);
+    border-radius: 0px 0px 4px 4px;
+    border-top: none;
+    background: var(--site-controls-background);
+    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    @media (max-width: 1150px) {
+        width: 95%;
+    }
+
+    div.tool-buttons {
+        flex: 1;
+        button.tool {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            box-shadow: none;
+            margin-bottom: 0;
+    
+            i-feather {
+                width: 16px;
+                height: 16px;
+                position: relative;
+                top: 0.3rem;
+                margin-right: 0.5rem;
+            }
+    
+            &.left {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+    
+            &.mid {
+                border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+            }
+    
+            &.end {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                border-left: 0;
+            }
+        }
+    }
+
+    form.tool-search {
+        margin-bottom: 0;
+
+        div.search-bar {
+            position: relative;
+
+            input.search-input {
+                display: inline-block;
+                box-shadow: none;
+                border-right: 0;
+                margin-bottom: 0;
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+
+            button.search-submit {
+                float: right;
+                box-shadow: none;
+                padding-left: 1rem;
+                padding-right: 1rem;
+                margin-bottom: 0;
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+
+                i-feather {
+                    height: 16px;
+                    width: 16px;
+                }
+            }
+        }
+    }
+}
+
 /* Content inside accent-colored boxes. */
 .content-box {
     color: whitesmoke;
@@ -326,297 +413,6 @@ button, a.button, input[type=submit] {
             }
         }
     }
-}
-
-/* QuillJS */
-.content-box {
-    quill-view {
-        div.ql-container, div.ql-snow {
-            font-size: 16px;
-            font-family: 'Raleway';
-            height: 100%;
-
-            p {
-                margin: 1em 0px;
-            }
-
-            div.ql-editor {
-                &.ql-blank::before {
-                    margin: 1em 0px;
-                }
-                iframe {
-                    width: 500px;
-                    height: 300px;
-                }
-                img {
-                    max-width: 100%;
-                    max-height: 100%;
-                    object-fit: contain;
-                }
-            }
-
-            a {
-                color: whitesmoke !important;
-                text-decoration: none !important;
-                background: linear-gradient(0deg, var(--site-accent) 0%, var(--site-accent-hover) 10%, var(--site-accent) 50%);                                
-                &:hover {
-                    color: whitesmoke !important;
-                    background: linear-gradient(0deg, var(--site-accent) 0%, var(--site-accent-hover) 10%, var(--site-accent-hover) 90%, var(--site-accent) 100%);
-                    text-decoration: none !important;                    
-                }
-            }
-        }
-    }
-}
-
-quill-view {
-    div.ql-container, div.ql-snow {
-        font-size: 16px;
-        font-family: 'Raleway';
-        height: 100%;
-
-        p {
-            margin: 1em 0px;
-        }
-
-        div.ql-editor {
-            iframe {
-                width: 500px;
-                height: 300px;
-            }
-            img {
-                max-width: 100%;
-                max-height: 100%;
-                object-fit: contain;
-            }
-            &.ql-blank::before {
-                margin: 1em 0px;
-            }
-        }
-
-        a {
-            color: var(--site-accent) !important;
-            text-decoration: none !important;
-
-            &:hover {
-                color: var(--site-accent-hover) !important;
-            }
-        }
-    }
-}
-
-quill-view-html {
-    div.ql-container, div.ql-snow {
-        font-size: 16px;
-        font-family: 'Raleway';
-        height: 100%;
-
-        p {
-            margin: 1em 0px;
-        }
-
-        div.ql-edtior.ql-blank::before {
-            margin: 1em 0px;
-        }
-
-        a {
-            color: var(--site-accent) !important;
-            text-decoration: none !important;
-            
-            &:hover {
-                color: var(--site-accent-hover) !important;
-                text-decoration: underline !important;
-            }
-        }
-    }
-}
-
-.ql-toolbar.ql-snow {
-    border: 1px solid var(--site-borders);
-    color: var(--site-text-color);
-    padding: 0;
-    svg {
-        stroke: var(--site-text-color);
-
-        .ql-stroke {
-            stroke: var(--site-text-color);
-        }
-
-        .ql-stroke:hover {
-            stroke: var(--site-accent);
-        }
-    }
-
-    svg:hover {
-        stroke: var(--site-accent);
-    }
-}
-
-quill-editor {
-    .ql-container.ql-snow {
-        border: 1px solid var(--site-borders);
-        margin-bottom: 2rem;
-        height: 300px;
-        font-size: 16px;
-        font-family: 'Raleway';
-        box-shadow: var(--site-dropshadow);
-
-        p {
-            margin: 1em 0px;
-        }
-        
-        div.ql-editor.ql-blank::before {
-            margin: 1em 0px;
-        }
-
-        a {
-            color: var(--site-accent) !important;
-            text-decoration: none !important;
-            
-            &:hover {
-                color: var(--site-accent-hover) !important;
-                text-decoration: underline !important;
-            }
-        }
-    }
-    .ql-editor:data-placeholder {
-        color: var(--site-text-color) !important;
-    }
-    .ql-snow .ql-picker {
-        color: var(--site-text-color) !important;
-        font-size: 16px !important;
-        top: 1rem !important;
-        left: 0.25rem !important;
-        font-family: 'Raleway' !important;
-    }
-    .ql-snow .ql-picker-options {
-        background-color: var(--site-background) !important;
-    }
-    div {
-        span.ql-formats {
-            border-right: 1px solid var(--site-borders);
-            margin-right: 0 !important;
-            padding: 0 10px 0 10px;
-        }
-        button {
-            margin-bottom: 0;
-            color: var(--site-text-color);
-            font-size: 16px;
-            height: auto !important;
-            box-shadow: none;
-        }
-        button:hover {
-            color: whitesmoke !important;
-            background-color: var(--site-accent) !important;
-        }
-        button.ql-active {
-            color: whitesmoke !important;
-            background-color: var(--site-accent) !important;
-        }
-    }
-}
-
-/* NgSelect */
-.ng-select.custom {
-    border: 1px solid var(--site-borders);
-    min-height: 0px;
-    border-radius: 0;
-    margin-bottom: 0;
-    color: var(--site-text-color);
-    background-color: var(--site-background);
-}
-
-.ng-select.custom .ng-control {
-    min-height: 0px;
-    border-radius: 4px;
-    border: none;
-}
-
-.ng-select.custom .ng-select-container {
-    min-height: 0px;
-    border-radius: 4px;
-    border: none;
-    background-color: var(--site-background);
-    color: var(--site-text-color);
-}
-
-.ng-dropdown-panel.custom {
-    border: 1px solid var(--site-borders);
-    min-height: 0px;
-    border-radius: 4px;
-    background-color: var(--site-background);
-}
-
-.ng-dropdown-panel.custom .ng-dropdown-panel-items {
-    background-color: var(--site-background);
-}
-
-.ng-dropdown-panel.ng-select-top {
-    background-color: var(--site-background);
-    color: var(--site-text-color);
-    border: 1px solid var(--site-borders);
-    border-radius: 4px;
-}
-
-.ng-dropdown-panel.ng-select-bottom {
-    background-color: var(--site-background);
-    color: var(--site-text-color);
-    border: 1px solid var(--site-borders);
-    border-radius: 4px;
-}
-
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
-    background-color: var(--site-background);
-    color: var(--site-text-color);
-    border-radius: 4px;
-}
-
-.ng-dropdown-panel.ng-select-top .ng-dropdown-panel-items .ng-option:first-child {
-    border-radius: 4px;
-}
-
-.ng-dropdown-panel.ng-select-bottom .ng-dropdown-panel-items .ng-option:last-child {
-    border-radius: 4px;
-}
-
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked {
-    background-color: var(--site-accent);
-    color: whitesmoke;
-}
-
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected {
-    background-color: var(--site-accent);
-    color: whitesmoke;
-}
-
-.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
-    background-color: var(--site-accent-hover);
-    color: whitesmoke;
-}
- 
-.ng-dropdown-panel.custom .ng-dropdown-panel-items .ng-option {
-    background-color: var(--site-background);
-    color: var(--site-text-color);
-}
-
-.ng-dropdown-panel.custom .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
-    background-color: var(--site-accent);
-    color: whitesmoke;
-}
-
-.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
-    border-radius: 4px;
-    border: 1px solid var(--site-borders);
-    background-color: var(--site-accent);
-    color: whitesmoke;
-}
-
-.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon.left {
-    border-right: 1px solid var(--site-accent-hover);
-}
-
-.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon:hover {
-    background-color: var(--site-accent-hover);
 }
 
 /* Ngx Pagination */

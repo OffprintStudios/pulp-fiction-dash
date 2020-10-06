@@ -1,12 +1,12 @@
-<div class="news-container">
-    <div class="news-header">
-        <h2>News Management</h2>
+<div class="tools">
+    <div class="tool-buttons">
+        <button matRipple class="tool left"><i-feather name="plus"></i-feather>Post</button>
+        <button matRipple class="tool end"><i-feather name="filter"></i-feather>Filter</button>
     </div>
-    <hr class="header-divider">
-</div>
-
-<div style="text-align: center; margin-top: 2rem;">
-    <h3 style="margin-bottom: 0;">Pardon the dust!</h3>
-    <p style="margin-top: 0; margin-bottom: 0; font-style: italic;">Looks like you came here a bit too early.</p>
-    <p style="margin-top: 0; font-style: italic;">Keep an eye on the patch notes to find out when this feature will be available!</p>
+    <form [formGroup]="searchForm" class="tool-search">
+        <div class="search-bar">
+            <input type="text" formControlName="query" class="search-input" placeholder="Search posts...">
+            <button matRipple class="search-submit" type="submit"><i-feather name="search"></i-feather></button>
+        </div>
+    </form>
 </div>
