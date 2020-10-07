@@ -11,7 +11,7 @@ import { AppComponent } from './app.component';
 import { MaterialModule } from './modules/material/material.module';
 import { IconsModule } from './modules/icons/icons.module';
 import { AuthInterceptor } from './services/auth';
-import { EditorComponent } from './components/editor/editor.component';
+import { EditorComponent } from './components/editor';
 
 import { HomeComponent } from './pages/home';
 import { QueueComponent } from './pages/queue';
@@ -20,12 +20,15 @@ import { DocsComponent } from './pages/docs';
 import { ReportsComponent } from './pages/reports';
 import { UsersComponent } from './pages/users';
 import { AuditComponent } from './pages/audit';
+import { LoadingComponent } from './components/loading';
+import { LoadingInterceptor } from './services/util/loading';
 
 @NgModule({
   declarations: [
     AppComponent, HomeComponent, QueueComponent, NewsComponent, DocsComponent,
     ReportsComponent, UsersComponent, AuditComponent, NewspostFormComponent,
-    EditorComponent
+    EditorComponent,
+    LoadingComponent
   ],
   imports: [
     BrowserModule, AppRoutingModule, BrowserAnimationsModule, MaterialModule,
@@ -33,6 +36,7 @@ import { AuditComponent } from './pages/audit';
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
+    {provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true},
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue: {duration: 2500}}
   ],
   bootstrap: [AppComponent]
