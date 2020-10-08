@@ -38,13 +38,7 @@ export class AppComponent {
   navigationInterceptor(event: Event): void {
     if (event instanceof NavigationStart) {
       this.loadingService.startLoading();
-    } else if (event instanceof NavigationEnd) {
-      this.loadingService.stopLoading();
-    } else if (event instanceof NavigationCancel) {
-      this.loadingService.stopLoading();
-    } else if (event instanceof NavigationError) {
-      this.loadingService.stopLoading();
-    } else {
+    } else if (event instanceof NavigationEnd || event instanceof NavigationError || event instanceof NavigationCancel) {
       this.loadingService.stopLoading();
     }
   }

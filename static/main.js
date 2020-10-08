@@ -1043,11 +1043,9 @@ class LoadingService {
         this.loadingStatus.next(value);
     }
     startLoading() {
-        console.log("Started loading");
         this.loadState = true;
     }
     stopLoading() {
-        console.log("Stopped loading");
         this.loadState = false;
     }
 }
@@ -1297,16 +1295,7 @@ class AppComponent {
         if (event instanceof _angular_router__WEBPACK_IMPORTED_MODULE_2__["NavigationStart"]) {
             this.loadingService.startLoading();
         }
-        else if (event instanceof _angular_router__WEBPACK_IMPORTED_MODULE_2__["NavigationEnd"]) {
-            this.loadingService.stopLoading();
-        }
-        else if (event instanceof _angular_router__WEBPACK_IMPORTED_MODULE_2__["NavigationCancel"]) {
-            this.loadingService.stopLoading();
-        }
-        else if (event instanceof _angular_router__WEBPACK_IMPORTED_MODULE_2__["NavigationError"]) {
-            this.loadingService.stopLoading();
-        }
-        else {
+        else if (event instanceof _angular_router__WEBPACK_IMPORTED_MODULE_2__["NavigationEnd"] || event instanceof _angular_router__WEBPACK_IMPORTED_MODULE_2__["NavigationError"] || event instanceof _angular_router__WEBPACK_IMPORTED_MODULE_2__["NavigationCancel"]) {
             this.loadingService.stopLoading();
         }
     }
@@ -1953,23 +1942,20 @@ class LoadingComponent {
         this.loading = false;
     }
     ngOnInit() {
-        this.loadingService.loadingStatus.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_1__["debounceTime"])(200))
+        this.loadingSubscription = this.loadingService.loadingStatus.pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_1__["debounceTime"])(200))
             .subscribe(val => {
             this.loading = val;
-            console.log(val);
         });
     }
     ngOnDestroy() {
+        this.loadingSubscription.unsubscribe();
     }
 }
 LoadingComponent.ɵfac = function LoadingComponent_Factory(t) { return new (t || LoadingComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdirectiveInject"](src_app_services_util_loading__WEBPACK_IMPORTED_MODULE_2__["LoadingService"])); };
-LoadingComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: LoadingComponent, selectors: [["loading"]], decls: 2, vars: 2, consts: [[4, "ngIf"], ["mode", "indeterminate"]], template: function LoadingComponent_Template(rf, ctx) { if (rf & 1) {
+LoadingComponent.ɵcmp = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineComponent"]({ type: LoadingComponent, selectors: [["loading"]], decls: 1, vars: 1, consts: [[4, "ngIf"], ["mode", "indeterminate"]], template: function LoadingComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtemplate"](0, LoadingComponent_ng_container_0_Template, 2, 0, "ng-container", 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtext"](1);
     } if (rf & 2) {
         _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵproperty"]("ngIf", ctx.loading);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵadvance"](1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵtextInterpolate1"](" ", ctx.loading, "\n");
     } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_3__["NgIf"], _angular_material_progress_bar__WEBPACK_IMPORTED_MODULE_4__["MatProgressBar"]], styles: ["\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJzcmMvYXBwL2NvbXBvbmVudHMvbG9hZGluZy9sb2FkaW5nLmNvbXBvbmVudC5sZXNzIn0= */"] });
 /*@__PURE__*/ (function () { _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵsetClassMetadata"](LoadingComponent, [{
         type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"],
