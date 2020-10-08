@@ -173,6 +173,18 @@ input[type=email], input[type=submit], select {
     color: var(--site-text-color);
 }
 
+button.disabled, input[type="text"].disabled {
+    background-color: var(--site-controls-background);
+    color: grey;
+    cursor: not-allowed;
+
+    &:hover {
+        background-color: var(--site-controls-background);
+        color: grey;
+        cursor: not-allowed;
+    }
+}
+
 a.button-primary, button.button-primary,
 input[type=submit].button-primary {
     border: 1px solid var(--site-borders);

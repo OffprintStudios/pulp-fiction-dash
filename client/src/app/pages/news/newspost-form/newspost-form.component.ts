@@ -9,13 +9,7 @@ import { NewsService } from 'src/app/services/contrib';
   templateUrl: './newspost-form.component.html',
   styleUrls: ['./newspost-form.component.less']
 })
-export class NewspostFormComponent implements OnInit, AfterViewInit {
-  @Input() toggle: boolean = false;
-  @Input() isEditing: boolean;
-  @Output() onOpening = new EventEmitter<boolean>();
-  @Output() onSubmit = new EventEmitter<boolean>();
-  @Output() onCancel = new EventEmitter<boolean>();
-
+export class NewspostFormComponent implements OnInit {
   postForm = new FormGroup({
     title: new FormControl(''),
     desc: new FormControl(''),
@@ -26,10 +20,5 @@ export class NewspostFormComponent implements OnInit, AfterViewInit {
   constructor(private newsService: NewsService) { }
 
   ngOnInit(): void {
-    this.onOpening.emit(true);
-  }
-
-  ngAfterViewInit(): void {
-    this.onOpening.emit(false);
   }
 }

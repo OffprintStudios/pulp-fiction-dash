@@ -1,22 +1,33 @@
 <div class="tools">
-    <div class="tool-buttons">
-        <button matRipple class="tool left" (click)="toggleNewsForm()"><i-feather name="plus"></i-feather>Post</button>
-        <button matRipple class="tool end"><i-feather name="filter"></i-feather>Filter</button>
-    </div>
-    <form [formGroup]="searchForm" class="tool-search">
-        <div class="search-bar">
-            <input type="text" formControlName="query" class="search-input" placeholder="Search posts...">
-            <button matRipple class="search-submit" type="submit"><i-feather name="search"></i-feather></button>
+    <ng-container *ngIf="route.children.length === 0; else goToForm">
+        <div class="tool-buttons">
+            <button matRipple class="tool left" [routerLink]="['/news/create-post']" (click)="toggleNewsForm()"><i-feather name="plus"></i-feather>Post</button>
+            <button matRipple class="tool end"><i-feather name="filter"></i-feather>Filter</button>
         </div>
-    </form>
+        <form [formGroup]="searchForm" class="tool-search">
+            <div class="search-bar">
+                <input type="text" formControlName="query" class="search-input" placeholder="Search posts...">
+                <button matRipple class="search-submit" type="submit"><i-feather name="search"></i-feather></button>
+            </div>
+        </form>
+    </ng-container>
+
+    <ng-template #goToForm>
+        <div class="tool-buttons">
+            <button matRipple class="tool left" [routerLink]="['/news']" (click)="toggleNewsForm()"><i-feather name="chevron-left"></i-feather>Back</button>
+            <button matRipple class="tool end disabled"><i-feather name="filter"></i-feather>Filter</button>
+        </div>
+        <form [formGroup]="searchForm" class="tool-search">
+            <div class="search-bar">
+                <input type="text" formControlName="query" class="search-input disabled" placeholder="Search posts..." disabled>
+                <button matRipple class="search-submit disabled" type="submit"><i-feather name="search"></i-feather></button>
+            </div>
+        </form>
+    </ng-template>
 </div>
 
-form loading: {{ loadingForm }}
-
-<ng-container *ngIf="toggleForm; else listContainer">
-    <newspost-form [toggle]="toggleForm" (onOpening)="onFormOpen($event)" (onSubmit)="onSubmit($event)" (onCancel)="onCancel($event)"></newspost-form>
+<ng-container *ngIf="route.children.length === 0">
+    hi!
 </ng-container>
 
-<ng-template #listContainer>
-    hi!
-</ng-template>
+<router-outlet></router-outlet>

@@ -7,7 +7,7 @@ import { Roles } from './models/user';
 import { AuditComponent } from './pages/audit';
 import { DocsComponent } from './pages/docs';
 import { HomeComponent } from './pages/home';
-import { NewsComponent } from './pages/news';
+import { NewsComponent, NewspostFormComponent } from './pages/news';
 import { QueueComponent } from './pages/queue';
 import { ReportsComponent } from './pages/reports';
 import { UsersComponent } from './pages/users';
@@ -15,7 +15,10 @@ import { UsersComponent } from './pages/users';
 const routes: Routes = [
   {path: 'home', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator, Roles.Contributor, Roles.WorkApprover]}, component: HomeComponent},
   {path: 'queue', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator, Roles.Contributor, Roles.WorkApprover]}, component: QueueComponent},
-  {path: 'news', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator, Roles.Contributor]}, component: NewsComponent},
+  {path: 'news', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator, Roles.Contributor]}, component: NewsComponent, children: [
+    {path: 'create-post', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator, Roles.Contributor]}, component: NewspostFormComponent},
+    {path: 'edit-post/:postId', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator, Roles.Contributor]}, component: NewspostFormComponent}
+  ]},
   {path: 'docs', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator, Roles.Contributor]}, component: DocsComponent},
   {path: 'reports', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator]}, component: ReportsComponent},
   {path: 'users', canActivate: [AuthGuard], data: {roles: [Roles.Admin, Roles.Moderator]}, component: UsersComponent},

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 import { ClientUser } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth';
@@ -18,7 +19,11 @@ export class NewsComponent implements OnInit {
     query: new FormControl('')
   });
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, public route: ActivatedRoute) {
+    this.authService.currentUser.subscribe(x => {
+      this.currentUser = x;
+    });
+  }
 
   ngOnInit(): void {
   }
@@ -28,22 +33,6 @@ export class NewsComponent implements OnInit {
       this.toggleForm = false;
     } else {
       this.toggleForm = true;
-    }
-  }
-
-  onFormOpen(event: boolean) {
-    this.loadingForm = event;
-  }
-
-  onSubmit(event: boolean) {
-    if (event === true) {
-      this.toggleForm = false;
-    }
-  }
-
-  onCancel(event: boolean) {
-    if (event === true) {
-      this.toggleForm = false;
     }
   }
 }

@@ -10,19 +10,17 @@ import { LoadingService } from 'src/app/services/util/loading';
 })
 export class LoadingComponent implements OnInit, OnDestroy {
   loading: boolean = false;
-  loadingSubscription: Subscription;
 
   constructor(private loadingService: LoadingService) { }
 
   ngOnInit(): void {
-    this.loadingSubscription = this.loadingService.loadingStatus
-      .pipe(debounceTime(200))
-      .subscribe((value) => {
-        this.loading = value;
+    this.loadingService.loadingStatus.pipe(debounceTime(200))
+      .subscribe(val => {
+        this.loading = val;
+        console.log(val);
       });
   }
 
   ngOnDestroy(): void {
-    this.loadingSubscription.unsubscribe();
   }
 }

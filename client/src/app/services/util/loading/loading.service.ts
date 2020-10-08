@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 })
 export class LoadingService {
   private _loading: boolean = false;
-  loadingStatus: Subject<boolean> = new Subject<boolean>();
+  loadingStatus: Subject<boolean> = new Subject();
 
   constructor() { }
 
@@ -20,10 +20,12 @@ export class LoadingService {
   }
 
   startLoading() {
-    this._loading = true;
+    console.log("Started loading");
+    this.loadState = true;
   }
 
   stopLoading() {
-    this._loading = false;
+    console.log("Stopped loading");
+    this.loadState = false;
   }
 }
