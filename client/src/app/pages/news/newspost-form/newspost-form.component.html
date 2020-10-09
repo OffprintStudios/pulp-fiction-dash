@@ -1,3 +1,25 @@
-<form [formGroup]="postForm">
-    <editor [parentForm]="postForm" [controlName]="'body'"></editor>
-</form>
+<div class="newspost-form">
+    <h3 style="text-align: center; margin-bottom: 1.5rem;">Create a Newspost</h3>
+    <form [formGroup]="postForm">
+        <mat-form-field style="width: 100%" appearance="outline">
+            <mat-label>Title</mat-label>
+            <input matInput placeholder="The Latest Scoop" formControlName="title">
+        </mat-form-field>
+
+        <mat-form-field style="width: 100%" appearance="outline">
+            <mat-label>Description</mat-label>
+            <input matInput placeholder="There's something afoot..." formControlName="desc">
+        </mat-form-field>
+
+        <mat-form-field style="width: 100%" appearance="outline">
+            <mat-label>Category</mat-label>
+            <mat-select formControlName="category">
+                <mat-option *ngFor="let cat of categories | keyvalue" [value]="cat.key">
+                    {{ cat.value }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <editor [parentForm]="postForm" [controlName]="'body'" [minHeight]="'700px'" [maxHeight]="'1000px'"></editor>
+    </form>
+</div>
