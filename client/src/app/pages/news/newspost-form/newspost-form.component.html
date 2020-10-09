@@ -1,5 +1,8 @@
 <div class="newspost-form">
-    <h3 style="text-align: center; margin-bottom: 1.5rem;">Create a Newspost</h3>
+    <div class="form-header">
+        <h3>Create a Newspost</h3>
+        <button type="submit" (click)="submitForm()">Save Post</button>
+    </div>
     <form [formGroup]="postForm" (ngSubmit)="submitForm()">
         <mat-form-field style="width: 100%" appearance="outline">
             <mat-label>Title</mat-label>
@@ -21,9 +24,5 @@
         </mat-form-field>
 
         <editor [parentForm]="postForm" [controlName]="'body'" [minHeight]="'700px'" [maxHeight]="'1000px'"></editor>
-
-        <div class="submission">
-            <button type="submit">Create Post</button>
-        </div>
     </form>
 </div>
