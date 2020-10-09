@@ -28,7 +28,7 @@ impl NewsDocument {
         };
 
         NewsDocument {
-            _id: news_id,
+            id: news_id,
             user_id: user_id,
             title: sanitize_html(&form.title).await,
             desc: sanitize_html(&form.desc).await,
@@ -47,7 +47,7 @@ impl DocumentMethods for NewsDocument {
         let coll = db.collection("news");
         let doc = match to_document(self) {
             Ok(doc) => doc,
-            Err(_) => unimplemented!("Problem converting ")
+            Err(e) => unimplemented!("Problem converting {}", e)
         };
 
         match coll.insert_one(doc, None).await {
