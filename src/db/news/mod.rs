@@ -94,6 +94,27 @@ impl DocumentMethods for NewsDocument {
         Some(posts)
     }
 
+    async fn find_all(db: Database) -> Option<Vec<Self>> {
+        use futures::stream::StreamExt;
+
+        let coll = db.collection("news");
+        let docs: Cursor = match coll.find(None, None).await {
+            Ok(d) => d,
+            Err(e) => unimplemented!("{}", e)
+        };
+        let results: Vec<MongoResult<Document>> = docs.collect().await;
+
+        let mut posts: Vec<NewsDocument> = Vec::new();
+        for doc in results {
+            match doc {
+                Ok(item) => posts.push(Self::convert_from_bson(item).await.unwrap()),
+                Err(_) => unimplemented!("Something went wrong!")
+            }
+        }
+
+        Some(posts)
+    }
+
     async fn convert_from_bson(doc: Document) -> Result<Self, ()> {
         match from_bson::<NewsDocument>(Bson::Document(doc)) {
             Ok(item) => Ok(item),
