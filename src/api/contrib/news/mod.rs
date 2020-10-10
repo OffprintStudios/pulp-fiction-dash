@@ -27,6 +27,8 @@ pub async fn edit_newspost(_conn: PulpDb, _user: UserDocument, _post_info: Json<
 
 #[get("/news/fetch-all")]
 pub async fn fetch_all(conn: PulpDb, _user: UserDocument) -> Result<ApiResponse, ApiResponse> {
-    let docs = NewsDocument::find_all(conn.0.clone()).await;
-    Ok(ApiResponse::ok().data(json!(docs)))
+    match NewsDocument::find_all(conn.0.clone()).await {
+        Ok(docs) => Ok(ApiResponse::ok().data(json!(docs))),
+        Err(e) => Err(ApiResponse::internal_server_error().message(&format!("{}", e)))
+    }
 }

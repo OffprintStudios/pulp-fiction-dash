@@ -73,13 +73,13 @@ impl DocumentMethods for NewsDocument {
         }
     }
 
-    async fn find_belonging_to(db: Database, user_id: String) -> Option<Vec<Self>> {
+    async fn find_belonging_to(db: Database, user_id: String) -> Result<Vec<Self>, mongodb::error::Error> {
         use futures::stream::StreamExt;
 
         let coll = db.collection("news");
         let docs: Cursor = match coll.find(doc!{"user_id": user_id}, None).await {
             Ok(d) => d,
-            Err(e) => unimplemented!("{}", e)
+            Err(e) => return Err(e)
         };
         let results: Vec<MongoResult<Document>> = docs.collect().await;
 
@@ -87,20 +87,20 @@ impl DocumentMethods for NewsDocument {
         for doc in results {
             match doc {
                 Ok(item) => posts.push(Self::convert_from_bson(item).await.unwrap()),
-                Err(_) => unimplemented!("Something went wrong!")
+                Err(_) => unimplemented!("There was an error in the docs cursor. find_belonging_to")
             }
         }
 
-        Some(posts)
+        Ok(posts)
     }
 
-    async fn find_all(db: Database) -> Option<Vec<Self>> {
+    async fn find_all(db: Database) -> Result<Vec<Self>, mongodb::error::Error> {
         use futures::stream::StreamExt;
 
         let coll = db.collection("news");
         let docs: Cursor = match coll.find(None, None).await {
             Ok(d) => d,
-            Err(e) => unimplemented!("{}", e)
+            Err(e) => return Err(e)
         };
         let results: Vec<MongoResult<Document>> = docs.collect().await;
 
@@ -108,11 +108,11 @@ impl DocumentMethods for NewsDocument {
         for doc in results {
             match doc {
                 Ok(item) => posts.push(Self::convert_from_bson(item).await.unwrap()),
-                Err(_) => unimplemented!("Something went wrong!")
+                Err(_) => unimplemented!("There was an error in the docs cursor. find_all")
             }
         }
 
-        Some(posts)
+        Ok(posts)
     }
 
     async fn convert_from_bson(doc: Document) -> Result<Self, ()> {

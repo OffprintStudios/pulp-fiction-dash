@@ -49,10 +49,10 @@ pub trait DocumentMethods {
     async fn find_one_by_id(db: Database, item_id: String) -> Option<Self> where Self: Sized;
 
     /// Finds a group of items belonging to one user.
-    async fn find_belonging_to(db: Database, user_id: String) -> Option<Vec<Self>> where Self: Sized;
+    async fn find_belonging_to(db: Database, user_id: String) -> Result<Vec<Self>, mongodb::error::Error> where Self: Sized;
 
     /// Finds all related items
-    async fn find_all(db: Database) -> Option<Vec<Self>> where Self: Sized;
+    async fn find_all(db: Database) -> Result<Vec<Self>, mongodb::error::Error> where Self: Sized;
 
     /// Converts a document to an item struct.
     async fn convert_from_bson(doc: Document) -> Result<Self, ()> where Self: Sized;
