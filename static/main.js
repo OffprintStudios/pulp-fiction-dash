@@ -1002,6 +1002,18 @@ class NewsService {
             return Object(rxjs__WEBPACK_IMPORTED_MODULE_1__["throwError"])(err);
         }));
     }
+    /**
+     * Fetches all newsposts
+     */
+    fetchAll() {
+        return this.http.get(`${this.url}/fetch-all`, { observe: 'response', withCredentials: true })
+            .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["map"])(res => {
+            return res.body.data;
+        }), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_2__["catchError"])(err => {
+            this.snackBar.open(err.error.message);
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_1__["throwError"])(err);
+        }));
+    }
 }
 NewsService.ɵfac = function NewsService_Factory(t) { return new (t || NewsService)(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_common_http__WEBPACK_IMPORTED_MODULE_3__["HttpClient"]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"](_angular_material_snack_bar__WEBPACK_IMPORTED_MODULE_4__["MatSnackBar"])); };
 NewsService.ɵprov = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"]({ token: NewsService, factory: NewsService.ɵfac, providedIn: 'root' });
