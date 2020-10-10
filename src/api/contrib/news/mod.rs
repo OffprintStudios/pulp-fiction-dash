@@ -1,6 +1,7 @@
 pub mod models;
 
 /* Rocket */
+use rocket_contrib::json;
 use rocket_contrib::json::Json;
 
 /* Library */
@@ -22,4 +23,10 @@ pub async fn create_newspost(conn: PulpDb, user: UserDocument, post_info: Json<N
 #[patch("/news/edit-newspost", data = "<_post_info>", format = "application/json")]
 pub async fn edit_newspost(_conn: PulpDb, _user: UserDocument, _post_info: Json<NewspostForm>) {
     println!("Edit newspost route hit!")
+}
+
+#[get("/news/fetch-all")]
+pub async fn fetch_all(conn: PulpDb, _user: UserDocument) -> Result<ApiResponse, ApiResponse> {
+    let docs = NewsDocument::find_all(conn.0.clone()).await;
+    Ok(ApiResponse::ok().data(json!(docs)))
 }
