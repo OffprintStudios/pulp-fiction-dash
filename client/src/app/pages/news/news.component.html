@@ -1,12 +1,39 @@
-<div class="news-container">
-    <div class="news-header">
-        <h2>News Management</h2>
-    </div>
-    <hr class="header-divider">
+<div class="tools">
+    <ng-container *ngIf="route.children.length === 0; else goToForm">
+        <div class="tool-buttons">
+            <button matRipple class="tool left" [routerLink]="['/news/create-post']" (click)="toggleNewsForm()"><i-feather name="plus"></i-feather>Post</button>
+            <button matRipple class="tool end"><i-feather name="filter"></i-feather>Filter</button>
+        </div>
+        <form [formGroup]="searchForm" class="tool-search">
+            <div class="search-bar">
+                <input type="text" formControlName="query" class="search-input" placeholder="Search posts...">
+                <button matRipple class="search-submit" type="submit"><i-feather name="search"></i-feather></button>
+            </div>
+        </form>
+    </ng-container>
+
+    <ng-template #goToForm>
+        <div class="tool-buttons">
+            <button matRipple class="tool left" [routerLink]="['/news']" (click)="toggleNewsForm()"><i-feather name="chevron-left"></i-feather>Back</button>
+            <button matRipple class="tool end disabled"><i-feather name="filter"></i-feather>Filter</button>
+        </div>
+        <form [formGroup]="searchForm" class="tool-search">
+            <div class="search-bar">
+                <input type="text" formControlName="query" class="search-input disabled" placeholder="Search posts..." disabled>
+                <button matRipple class="search-submit disabled" type="submit"><i-feather name="search"></i-feather></button>
+            </div>
+        </form>
+    </ng-template>
 </div>
 
-<div style="text-align: center; margin-top: 2rem;">
-    <h3 style="margin-bottom: 0;">Pardon the dust!</h3>
-    <p style="margin-top: 0; margin-bottom: 0; font-style: italic;">Looks like you came here a bit too early.</p>
-    <p style="margin-top: 0; font-style: italic;">Keep an eye on the patch notes to find out when this feature will be available!</p>
-</div>
+<ng-container *ngIf="route.children.length === 0">
+    <div class="posts-list">
+        <ng-container *ngIf="posts && posts.length > 0">
+            <div class="post" *ngFor="let post of posts">
+                {{ post.title }}
+            </div>
+        </ng-container>
+    </div>
+</ng-container>
+
+<router-outlet></router-outlet>

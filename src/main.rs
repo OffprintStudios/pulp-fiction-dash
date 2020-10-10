@@ -68,7 +68,8 @@ async fn t_minus() -> rocket::Rocket {
         .mount("/api/contrib", routes![
             // News posts
             api::contrib::news::create_newspost,
-            api::contrib::news::edit_newspost
+            api::contrib::news::edit_newspost,
+            api::contrib::news::fetch_all
         ])
         .attach(SpaceHelmet::default())
         .manage(db::init_pulp_db().await)

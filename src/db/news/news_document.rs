@@ -5,12 +5,13 @@ use mongodb::bson::DateTime;
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all="camelCase")]
 pub struct NewsDocument {
-    pub _id: String,
+    #[serde(rename="_id")]
+    pub id: String,
     pub user_id: String,
     pub title: String,
     pub desc: String,
     pub body: String,
-    pub wordcount: u32,
+    pub wordcount: i32,
     pub audit: NewsAudit,
     pub created_at: DateTime,
     pub updated_at: DateTime

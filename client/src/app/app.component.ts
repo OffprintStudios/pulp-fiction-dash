@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, Event } from '@angular/router';
 
 import { ClientUser, LoginUser } from './models/user';
 import { AuthService } from './services/auth';
+import { LoadingService } from './services/util/loading';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +12,7 @@ import { AuthService } from './services/auth';
   styleUrls: ['./app.component.less']
 })
 export class AppComponent {
-  title = 'client';
+  title = 'Offprint Dashboard';
 
   currentUser: ClientUser;
   loadingLogin = false;
@@ -21,13 +23,25 @@ export class AppComponent {
     rememberMe: new FormControl(false)
   });
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService) {
     this.authService.currentUser.subscribe(x => {
       this.currentUser = x;
+    });
+
+    this.router.events.subscribe((event: Event) => {
+      this.navigationInterceptor(event);
     });
   }
 
   get loginFields() { return this.loginForm.controls; }
+
+  navigationInterceptor(event: Event): void {
+    if (event instanceof NavigationStart) {
+      this.loadingService.startLoading();
+    } else if (event instanceof NavigationEnd || event instanceof NavigationError || event instanceof NavigationCancel) {
+      this.loadingService.stopLoading();
+    }
+  }
 
   submitLogin() {
     this.loadingLogin = true;

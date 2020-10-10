@@ -4,7 +4,8 @@ pub mod news_category;
 pub use news_document::{NewsDocument, NewsAudit};
 pub use news_category::NewsCategory;
 
-use mongodb::Database;
+use mongodb::{Cursor, Database};
+use mongodb::error::Result as MongoResult;
 use mongodb::bson::{
     doc, DateTime, Bson, from_bson, ser::to_document, Document
 };
@@ -28,7 +29,7 @@ impl NewsDocument {
         };
 
         NewsDocument {
-            _id: news_id,
+            id: news_id,
             user_id: user_id,
             title: sanitize_html(&form.title).await,
             desc: sanitize_html(&form.desc).await,
@@ -47,7 +48,7 @@ impl DocumentMethods for NewsDocument {
         let coll = db.collection("news");
         let doc = match to_document(self) {
             Ok(doc) => doc,
-            Err(_) => unimplemented!("Problem converting ")
+            Err(e) => unimplemented!("Problem converting {}", e)
         };
 
         match coll.insert_one(doc, None).await {
@@ -70,6 +71,48 @@ impl DocumentMethods for NewsDocument {
             },
             Err(e) => unimplemented!("{}", e)
         }
+    }
+
+    async fn find_belonging_to(db: Database, user_id: String) -> Result<Vec<Self>, mongodb::error::Error> {
+        use futures::stream::StreamExt;
+
+        let coll = db.collection("news");
+        let docs: Cursor = match coll.find(doc!{"user_id": user_id}, None).await {
+            Ok(d) => d,
+            Err(e) => return Err(e)
+        };
+        let results: Vec<MongoResult<Document>> = docs.collect().await;
+
+        let mut posts: Vec<NewsDocument> = Vec::new();
+        for doc in results {
+            match doc {
+                Ok(item) => posts.push(Self::convert_from_bson(item).await.unwrap()),
+                Err(_) => unimplemented!("There was an error in the docs cursor. find_belonging_to")
+            }
+        }
+
+        Ok(posts)
+    }
+
+    async fn find_all(db: Database) -> Result<Vec<Self>, mongodb::error::Error> {
+        use futures::stream::StreamExt;
+
+        let coll = db.collection("news");
+        let docs: Cursor = match coll.find(None, None).await {
+            Ok(d) => d,
+            Err(e) => return Err(e)
+        };
+        let results: Vec<MongoResult<Document>> = docs.collect().await;
+
+        let mut posts: Vec<NewsDocument> = Vec::new();
+        for doc in results {
+            match doc {
+                Ok(item) => posts.push(Self::convert_from_bson(item).await.unwrap()),
+                Err(_) => unimplemented!("There was an error in the docs cursor. find_all")
+            }
+        }
+
+        Ok(posts)
     }
 
     async fn convert_from_bson(doc: Document) -> Result<Self, ()> {
