@@ -4,7 +4,8 @@ pub mod news_category;
 pub use news_document::{NewsDocument, NewsAudit};
 pub use news_category::NewsCategory;
 
-use mongodb::Database;
+use mongodb::{Cursor, Database};
+use mongodb::error::Result as MongoResult;
 use mongodb::bson::{
     doc, DateTime, Bson, from_bson, ser::to_document, Document
 };
@@ -70,6 +71,27 @@ impl DocumentMethods for NewsDocument {
             },
             Err(e) => unimplemented!("{}", e)
         }
+    }
+
+    async fn find_belonging_to(db: Database, user_id: String) -> Option<Vec<Self>> {
+        use futures::stream::StreamExt;
+
+        let coll = db.collection("news");
+        let docs: Cursor = match coll.find(doc!{"user_id": user_id}, None).await {
+            Ok(d) => d,
+            Err(e) => unimplemented!("{}", e)
+        };
+        let results: Vec<MongoResult<Document>> = docs.collect().await;
+
+        let mut posts: Vec<NewsDocument> = Vec::new();
+        for doc in results {
+            match doc {
+                Ok(item) => posts.push(Self::convert_from_bson(item).await.unwrap()),
+                Err(_) => unimplemented!("Something went wrong!")
+            }
+        }
+
+        Some(posts)
     }
 
     async fn convert_from_bson(doc: Document) -> Result<Self, ()> {
