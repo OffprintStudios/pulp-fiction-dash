@@ -3,7 +3,9 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { ClientUser } from 'src/app/models/user';
+import { NewsDocument } from 'src/app/models/news';
 import { AuthService } from 'src/app/services/auth';
+import { NewsService } from 'src/app/services/contrib';
 
 @Component({
   selector: 'app-news',
@@ -15,14 +17,18 @@ export class NewsComponent implements OnInit {
   toggleForm: boolean = false;
   loadingForm: boolean = false;
 
+  posts: NewsDocument[];
+
   searchForm = new FormGroup({
     query: new FormControl('')
   });
 
-  constructor(private authService: AuthService, public route: ActivatedRoute) {
+  constructor(private newsService: NewsService, private authService: AuthService, public route: ActivatedRoute) {
     this.authService.currentUser.subscribe(x => {
       this.currentUser = x;
     });
+
+    this.fetchData();
   }
 
   ngOnInit(): void {
@@ -34,5 +40,11 @@ export class NewsComponent implements OnInit {
     } else {
       this.toggleForm = true;
     }
+  }
+
+  private fetchData() {
+    this.newsService.fetchAll().subscribe(data => {
+      this.posts = data;
+    });
   }
 }

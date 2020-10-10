@@ -51,7 +51,7 @@ export class NewsService {
    * Fetches all newsposts
    */
   public fetchAll() {
-    return this.http.get<ApiResponse<NewsDocument>>(`${this.url}/fetch-all`, {observe: 'response', withCredentials: true})
+    return this.http.get<ApiResponse<NewsDocument[]>>(`${this.url}/fetch-all`, {observe: 'response', withCredentials: true})
       .pipe(map(res => {
         return res.body.data;
       }), catchError(err => {
